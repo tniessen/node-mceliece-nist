@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+cd KeccakCodePackage
+make generic64/libkeccak.a
+
+cd ../mceliece
+make mceliece.a

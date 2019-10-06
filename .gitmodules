@@ -1,0 +1,3 @@
+[submodule "deps/KeccakCodePackage"]
+	path = deps/KeccakCodePackage
+	url = https://github.com/XKCP/XKCP.git

@@ -1,0 +1,39 @@
+{
+  "name": "mceliece-nist",
+  "version": "0.1.0",
+  "description": "Node.js bindings for the reference implementation of the McEliece KEM.",
+  "main": "index.js",
+  "dependencies": {
+    "bindings": "^1.5.0",
+    "node-addon-api": "^1.7.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-deps": "cd deps && ./build",
+    "build-self": "node-gyp rebuild",
+    "install": "npm run build-deps && npm run build-self"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tniessen/node-mceliece-nist.git"
+  },
+  "keywords": [
+    "mceliece",
+    "pqc",
+    "quantum",
+    "crypto",
+    "cryptography",
+    "asymmetric",
+    "kem",
+    "key",
+    "exchange"
+  ],
+  "author": "Tobias Nießen <tniessen@tnie.de>",
+  "license": "ISC",
+  "gypfile": true,
+  "bugs": {
+    "url": "https://github.com/tniessen/node-mceliece-nist/issues"
+  },
+  "homepage": "https://github.com/tniessen/node-mceliece-nist#readme"
+}
