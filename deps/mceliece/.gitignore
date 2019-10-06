@@ -1,2 +1,3 @@
 *.o
 mceliece.a
+*.tar.gz
