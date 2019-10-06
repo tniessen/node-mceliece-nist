@@ -2,7 +2,7 @@
 set -e
 
 cd KeccakCodePackage
-make generic64/libkeccak.a
+export CFLAGS=-fPIC && make generic64/libkeccak.a
 
 cd ../mceliece
 make mceliece.a
