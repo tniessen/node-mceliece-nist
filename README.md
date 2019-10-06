@@ -64,3 +64,9 @@ Generates a new symmetric key and encrypts it using the given publicKey. Returns
 
 Decrypts the `encryptedKey` that was returned by
 `instance.generateKey(publicKey)` and returns the decrypted key as a `Buffer`.
+
+## License
+
+This project is distributed under the ISC license. However, the files contained
+in the submodule `deps/KeccakCodePackage` are distributed under the terms
+described in `deps/KeccakCodePackage/README.markdown`.
