@@ -4,6 +4,14 @@ This package provides Node.js bindings for the reference implementation that is
 part of the [NIST submission](https://classic.mceliece.org/nist.html) by
 Bernstein et al.
 
+## Installation
+
+Currently, installation requires `xsltproc` to compile XKCP and `libssl-dev` to compile the McEliece KEM. On Linux systems with these packages, you can install as usual:
+
+```sh
+npm i mceliece-nist
+```
+
 ## Example
 
 ```javascript
