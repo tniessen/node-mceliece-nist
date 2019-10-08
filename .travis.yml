@@ -4,5 +4,9 @@ node_js:
   - 11
   - 12
 
+os:
+  - linux
+  - osx
+
 before_install:
-  - sudo apt-get install -y xsltproc
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y xsltproc; fi

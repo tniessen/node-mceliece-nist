@@ -2,7 +2,7 @@
   'targets': [
     {
       'target_name': 'mceliece',
-      'type': 'static_library',
+      'type': 'none',
       'dependencies': [
         'only_mceliece348864',
         'only_mceliece348864f',
