@@ -6,8 +6,8 @@ Bernstein et al.
 
 ## Installation
 
-Currently, installation requires `xsltproc` to compile XKCP. On Linux systems
-with this package, you can install as usual:
+Currently, installation requires `xsltproc` to compile XKCP. Apart from that,
+install as usual:
 
 ```sh
 npm i mceliece-nist
@@ -18,13 +18,13 @@ npm i mceliece-nist
 ```javascript
 const { McEliece } = require('mceliece-nist');
 
-const mceliece = new McEliece('mceliece8192128');
-const { publicKey, privateKey } = mceliece.keypair();
+const kem = new McEliece('mceliece8192128');
+const { publicKey, privateKey } = kem.keypair();
 
-const { key, encryptedKey } = mceliece.generateKey(publicKey);
+const { key, encryptedKey } = kem.generateKey(publicKey);
 console.log(`Bob is using the key ${key.toString('hex')}`);
 
-const receivedKey = mceliece.decryptKey(privateKey, encryptedKey);
+const receivedKey = kem.decryptKey(privateKey, encryptedKey);
 console.log(`Alice is using the key ${receivedKey.toString('hex')}`);
 ```
 
