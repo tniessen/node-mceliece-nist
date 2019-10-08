@@ -6,7 +6,8 @@ Bernstein et al.
 
 ## Installation
 
-Currently, installation requires `xsltproc` to compile XKCP and `libssl-dev` to compile the McEliece KEM. On Linux systems with these packages, you can install as usual:
+Currently, installation requires `xsltproc` to compile XKCP. On Linux systems
+with this package, you can install as usual:
 
 ```sh
 npm i mceliece-nist
