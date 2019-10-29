@@ -24,7 +24,7 @@ typedef struct {
   seed_fn_t seed;
 } mceliece_t;
 
-static mceliece_t kems[] = {
+static const mceliece_t kems[] = {
   {
     "mceliece348864",
     crypto_kem_mceliece348864_ref_PUBLICKEYBYTES,
@@ -137,7 +137,7 @@ static mceliece_t kems[] = {
   }
 };
 
-static mceliece_t* get_kem(const char* name) {
+static const mceliece_t* get_kem(const char* name) {
   for (unsigned int i = 0; i < sizeof(kems) / sizeof(mceliece_t); i++) {
     if (strcmp(kems[i].name, name) == 0)
       return &kems[i];
@@ -270,7 +270,7 @@ class McEliece : public Napi::ObjectWrap<McEliece> {
   }
 
  private:
-  mceliece_t* impl;
+  const mceliece_t* impl;
 };
 
 Napi::Value Seed(const Napi::CallbackInfo& info) {
