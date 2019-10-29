@@ -59,20 +59,27 @@ The size of the public key in bytes.
 
 The size of the private key in bytes.
 
-#### `instance.keypair()`
+#### `instance.keypair([callback])`
 
 Creates and returns a new key pair `{ publicKey, privateKey }`. Both keys will
 be returned as `Buffer`s.
+
+If `callback` is a function, `keypair` immediately returns `undefined` and calls
+`callback(err, publicKey, privateKey)` as soon as a new keypair has been
+generated.
 
 #### `instance.generateKey(publicKey)`
 
 Generates a new symmetric key and encrypts it using the given publicKey. Returns
 `{ key, encryptedKey }`, both objects will be `Buffer`s.
 
-#### `instance.decryptKey(privateKey, encryptedKey)`
+#### `instance.decryptKey(privateKey, encryptedKey[, callback])`
 
 Decrypts the `encryptedKey` that was returned by
 `instance.generateKey(publicKey)` and returns the decrypted key as a `Buffer`.
+
+If `callback` is a function, `decryptKey` immediately returns `undefined` and
+calls `callback(err, key)` as soon as the key has been decrypted.
 
 ## License
 

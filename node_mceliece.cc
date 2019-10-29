@@ -145,6 +145,102 @@ static const mceliece_t* get_kem(const char* name) {
   return NULL;
 }
 
+// TODO: The KEM implementation itself is not thread-safe, but it seems that
+// the only unsafe part is the random number generator. We are currently
+// linking each KEM against its own RNG, and we should probably just replace
+// all of those with a thread-safe implementation. (We could simply use OpenSSL
+// for that).
+
+template <typename T>
+static inline T* Malloc(size_t size) {
+  return reinterpret_cast<T*>(malloc(size));
+}
+
+static void Free(Napi::Env env, void* p) {
+  free(p);
+}
+
+template <typename T>
+static inline T* Duplicate(const void* mem, size_t size) {
+  T* copy = Malloc<T>(size);
+  if (copy != nullptr)
+    memcpy(copy, mem, size);
+  return copy;
+}
+
+class KeygenWorker : public Napi::AsyncWorker {
+ public:
+  KeygenWorker(Napi::Function& callback, const mceliece_t* impl) : AsyncWorker(callback), impl(impl) {}
+
+  ~KeygenWorker() {}
+
+  void Execute() override {
+    public_key = Malloc<unsigned char>(impl->public_key_size);
+    private_key = Malloc<unsigned char>(impl->private_key_size);
+
+    if (public_key == nullptr || private_key == nullptr) {
+      free(public_key);
+      free(private_key);
+      return SetError("Failed to allocate memory");
+    }
+
+    if (impl->keypair(public_key, private_key) != 0) {
+      free(public_key);
+      free(private_key);
+      return SetError("failed to generate keypair");
+    }
+  }
+
+  std::vector<napi_value> GetResult(Napi::Env env) override {
+    const auto public_key_buf = Napi::Buffer<unsigned char>::New(env, public_key, impl->public_key_size, Free);
+    const auto private_key_buf = Napi::Buffer<unsigned char>::New(env, private_key, impl->private_key_size, Free);
+    return { env.Undefined(), public_key_buf, private_key_buf };
+  }
+
+ private:
+  const mceliece_t* impl;
+  unsigned char* public_key;
+  unsigned char* private_key;
+};
+
+class DecryptWorker : public Napi::AsyncWorker {
+ public:
+  DecryptWorker(Napi::Function& callback, const mceliece_t* impl, const void* private_key, const void* ciphertext) : AsyncWorker(callback), impl(impl) {
+    this->private_key = Duplicate<unsigned char>(private_key, impl->private_key_size);
+    this->ciphertext = Duplicate<unsigned char>(ciphertext, impl->ciphertext_size);
+  }
+
+  void Execute() override {
+    if (private_key == nullptr || ciphertext == nullptr)
+      return SetError("Failed to allocate memory");
+
+    actual_key = Malloc<unsigned char>(impl->key_size);
+    if (actual_key == nullptr)
+      return SetError("Failed to allocate memory");
+
+    if (impl->decrypt(actual_key, ciphertext, private_key) != 0) {
+      free(actual_key);
+      return SetError("decryption failed");
+    }
+  }
+
+  std::vector<napi_value> GetResult(Napi::Env env) override {
+    const auto key = Napi::Buffer<unsigned char>::New(env, actual_key, impl->key_size, Free);
+    return { env.Undefined(), key };
+  }
+
+  ~DecryptWorker() {
+    free(private_key);
+    free(ciphertext);
+  }
+
+ private:
+  const mceliece_t* impl;
+  unsigned char* private_key;
+  unsigned char* ciphertext;
+  unsigned char* actual_key;
+};
+
 class McEliece : public Napi::ObjectWrap<McEliece> {
  public:
   McEliece(const Napi::CallbackInfo& info) : Napi::ObjectWrap<McEliece>(info) {
@@ -173,6 +269,13 @@ class McEliece : public Napi::ObjectWrap<McEliece> {
 
   Napi::Value Keypair(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
+
+    if (info[0].IsFunction()) {
+      Napi::Function cb = info[0].As<Napi::Function>();
+      KeygenWorker* worker = new KeygenWorker(cb, impl);
+      worker->Queue();
+      return env.Undefined();
+    }
 
     Napi::Buffer<unsigned char> public_key = Napi::Buffer<unsigned char>::New(env, impl->public_key_size);
     Napi::Buffer<unsigned char> private_key = Napi::Buffer<unsigned char>::New(env, impl->private_key_size);
@@ -222,7 +325,7 @@ class McEliece : public Napi::ObjectWrap<McEliece> {
   Napi::Value DecryptKey(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
-    if (info.Length() != 2) {
+    if (info.Length() != 2 && info.Length() != 3) {
       Napi::TypeError::New(env, "Wrong number of arguments")
           .ThrowAsJavaScriptException();
       return env.Undefined();
@@ -239,6 +342,13 @@ class McEliece : public Napi::ObjectWrap<McEliece> {
     if (encrypted_key.Length() != impl->ciphertext_size) {
       Napi::TypeError::New(env, "Invalid ciphertext size")
           .ThrowAsJavaScriptException();
+      return env.Undefined();
+    }
+
+    if (info.Length() == 3 && info[2].IsFunction()) {
+      Napi::Function cb = info[2].As<Napi::Function>();
+      DecryptWorker* worker = new DecryptWorker(cb, impl, private_key.Data(), encrypted_key.Data());
+      worker->Queue();
       return env.Undefined();
     }
 

@@ -33,3 +33,49 @@ for (const algorithm of McEliece.supportedAlgorithms) {
     assert.deepStrictEqual(receivedKey, key);
   }
 }
+
+// Keep track of algorithms that passed asynchronous tests.
+const workingAsyncAlgorithms = [];
+process.on('exit', () => {
+  assert.strictEqual(workingAsyncAlgorithms.length,
+                     McEliece.supportedAlgorithms.length);
+});
+
+for (const algorithm of McEliece.supportedAlgorithms) {
+  console.log(`Testing async ${algorithm}`);
+
+  const kem = new McEliece(algorithm);
+  const { keySize, encryptedKeySize, publicKeySize, privateKeySize } = kem;
+
+  // This variable will be set to true synchronously in order to detect whether
+  // the main thread was blocked.
+  let wasAsync = false;
+
+  kem.keypair((err, publicKey, privateKey) => {
+    assert(wasAsync);
+
+    assert.ifError(err);
+    assert(Buffer.isBuffer(publicKey));
+    assert.strictEqual(publicKey.length, publicKeySize);
+    assert(Buffer.isBuffer(privateKey));
+    assert.strictEqual(privateKey.length, privateKeySize);
+
+    const { key, encryptedKey } = kem.generateKey(publicKey);
+    assert.strictEqual(key.length, keySize);
+    assert.strictEqual(encryptedKey.length, encryptedKeySize);
+
+    wasAsync = false;
+    kem.decryptKey(privateKey, encryptedKey, (err, receivedKey) => {
+      assert(wasAsync);
+
+      assert.ifError(err);
+      assert.deepStrictEqual(receivedKey, key);
+
+      workingAsyncAlgorithms.push(algorithm);
+    });
+
+    wasAsync = true;
+  });
+
+  wasAsync = true;
+}
