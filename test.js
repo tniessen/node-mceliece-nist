@@ -34,6 +34,16 @@ for (const algorithm of McEliece.supportedAlgorithms) {
   }
 }
 
+// Use static test vectors to make sure that the output is correct.
+const vectors = require('./test_vectors');
+for (const { algorithm, privateKey, encryptedKey, key } of vectors) {
+  console.log(`Testing ${algorithm} with key ${key}`);
+  const kem = new McEliece(algorithm);
+  const receivedKey = kem.decryptKey(Buffer.from(privateKey, 'base64'),
+                                     Buffer.from(encryptedKey, 'base64'));
+  assert.strictEqual(receivedKey.toString('base64'), key);
+}
+
 // Keep track of algorithms that passed asynchronous tests.
 const workingAsyncAlgorithms = [];
 process.on('exit', () => {
