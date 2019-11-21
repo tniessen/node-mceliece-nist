@@ -18,8 +18,8 @@ add_header() {
 add_gyp() {
   id=$1
 
-  variables=("apply_benes=pqcrypto_kem_${id}_impl_priv_apply_benes" "bitrev=pqcrypto_kem_${id}_impl_priv_bitrev" "bm=pqcrypto_kem_${id}_impl_priv_bm" "controlbits=pqcrypto_kem_${id}_impl_priv_controlbits" "decrypt=pqcrypto_kem_${id}_impl_priv_decrypt" "encrypt=pqcrypto_kem_${id}_impl_priv_encrypt" "eval=pqcrypto_kem_${id}_impl_priv_eval" "gf_add=pqcrypto_kem_${id}_impl_priv_gf_add" "gf_frac=pqcrypto_kem_${id}_impl_priv_gf_frac" "gf_inv=pqcrypto_kem_${id}_impl_priv_gf_inv" "gf_iszero=pqcrypto_kem_${id}_impl_priv_gf_iszero" "gf_mul=pqcrypto_kem_${id}_impl_priv_gf_mul" "GF_mul=pqcrypto_kem_${id}_impl_priv_GF_mul" "load2=pqcrypto_kem_${id}_impl_priv_load2" "load8=pqcrypto_kem_${id}_impl_priv_load8" "perm_conversion=pqcrypto_kem_${id}_impl_priv_perm_conversion" "pk_gen=pqcrypto_kem_${id}_impl_priv_pk_gen" "root=pqcrypto_kem_${id}_impl_priv_root" "sk_part_gen=pqcrypto_kem_${id}_impl_priv_sk_part_gen" "sort_63b=pqcrypto_kem_${id}_impl_priv_sort_63b" "store2=pqcrypto_kem_${id}_impl_priv_store2" "store8=pqcrypto_kem_${id}_impl_priv_store8" "support_gen=pqcrypto_kem_${id}_impl_priv_support_gen" "synd=pqcrypto_kem_${id}_impl_priv_synd" "syndrome=pqcrypto_kem_${id}_impl_priv_syndrome" "transpose_64x64=pqcrypto_kem_${id}_impl_priv_transpose_64x64" "aes256ctr=pqcrypto_kem_${id}_impl_priv_aes256ctr" "load4=pqcrypto_kem_${id}_impl_priv_load4" "handleErrors=pqcrypto_kem_${id}_impl_priv_handleErrors" "perm_check=pqcrypto_kem_${id}_impl_priv_perm_check" "genpoly_gen=pqcrypto_kem_${id}_impl_priv_genpoly_gen")
-  externals=("randombytes")
+  variables=("apply_benes=pqcrypto_kem_${id}_impl_priv_apply_benes" "bitrev=pqcrypto_kem_${id}_impl_priv_bitrev" "bm=pqcrypto_kem_${id}_impl_priv_bm" "controlbits=pqcrypto_kem_${id}_impl_priv_controlbits" "decrypt=pqcrypto_kem_${id}_impl_priv_decrypt" "encrypt=pqcrypto_kem_${id}_impl_priv_encrypt" "eval=pqcrypto_kem_${id}_impl_priv_eval" "gf_add=pqcrypto_kem_${id}_impl_priv_gf_add" "gf_frac=pqcrypto_kem_${id}_impl_priv_gf_frac" "gf_inv=pqcrypto_kem_${id}_impl_priv_gf_inv" "gf_iszero=pqcrypto_kem_${id}_impl_priv_gf_iszero" "gf_mul=pqcrypto_kem_${id}_impl_priv_gf_mul" "GF_mul=pqcrypto_kem_${id}_impl_priv_GF_mul" "load2=pqcrypto_kem_${id}_impl_priv_load2" "load8=pqcrypto_kem_${id}_impl_priv_load8" "perm_conversion=pqcrypto_kem_${id}_impl_priv_perm_conversion" "pk_gen=pqcrypto_kem_${id}_impl_priv_pk_gen" "root=pqcrypto_kem_${id}_impl_priv_root" "sk_part_gen=pqcrypto_kem_${id}_impl_priv_sk_part_gen" "sort_63b=pqcrypto_kem_${id}_impl_priv_sort_63b" "store2=pqcrypto_kem_${id}_impl_priv_store2" "store8=pqcrypto_kem_${id}_impl_priv_store8" "support_gen=pqcrypto_kem_${id}_impl_priv_support_gen" "synd=pqcrypto_kem_${id}_impl_priv_synd" "syndrome=pqcrypto_kem_${id}_impl_priv_syndrome" "transpose_64x64=pqcrypto_kem_${id}_impl_priv_transpose_64x64" "load4=pqcrypto_kem_${id}_impl_priv_load4" "handleErrors=pqcrypto_kem_${id}_impl_priv_handleErrors" "perm_check=pqcrypto_kem_${id}_impl_priv_perm_check" "genpoly_gen=pqcrypto_kem_${id}_impl_priv_genpoly_gen")
+  externals=("randombytes" "aes256ctr")
 
   (
     echo "    {"
@@ -27,7 +27,7 @@ add_gyp() {
     echo "      'type': 'static_library',"
     echo "      'include_dirs': ['../KeccakCodePackage/bin/generic64'],"
     echo "      'sources': ["
-    for source in kem/$id/*.c; do
+    find kem/$id -maxdepth 1 -type f -name '*.c' | grep -v 'aes256ctr' | while read source; do
       echo "        '$source',"
     done
     echo "      ],"

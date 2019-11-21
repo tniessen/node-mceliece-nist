@@ -3,14 +3,47 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <mceliece.h>
 
 extern "C" {
 
+#define CHECK(a, message) do {                                             \
+                            if ((a) != 1) {                                \
+                              napi_fatal_error(__FILE__, NAPI_AUTO_LENGTH, \
+                                               message, NAPI_AUTO_LENGTH); \
+                            }                                              \
+                          } while (0)                                      \
+
 int pqcrypto_mceliece_randombytes(unsigned char* x, unsigned long long xlen) {
-  if (RAND_bytes(x, xlen) != 1)
-    Napi::Error::Fatal(__FILE__, "RAND_bytes failed");
+  CHECK(RAND_bytes(x, xlen), "RAND_bytes failed");
+  return 0;
+}
+
+int pqcrypto_mceliece_aes256ctr(unsigned char* out,
+                                unsigned long long outlen,
+                                const unsigned char* nonce,
+                                const unsigned char* key) {
+  unsigned char plaintext[outlen];
+  memset(plaintext, 0, outlen);
+
+  EVP_CIPHER_CTX* ctx;
+  int outl;
+
+  CHECK((ctx = EVP_CIPHER_CTX_new()) != NULL,
+        "EVP_CIPHER_CTX_new failed");
+  CHECK(EVP_EncryptInit_ex(ctx, EVP_aes_256_ctr(), 0, key, nonce),
+        "EVP_EncryptInit_ex failed");
+  CHECK(EVP_CIPHER_CTX_set_padding(ctx, 0),
+        "EVP_CIPHER_CTX_set_padding failed");
+  CHECK(EVP_EncryptUpdate(ctx, out, &outl, plaintext, outlen) &&
+        outl == (long long) outlen,
+        "EVP_EncryptUpdate failed");
+  CHECK(EVP_EncryptFinal_ex(ctx, out, &outl),
+        "EVP_EncryptFinal_ex failed");
+
+  EVP_CIPHER_CTX_free(ctx);
   return 0;
 }
 
