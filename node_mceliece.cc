@@ -3,14 +3,24 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <openssl/rand.h>
 #include <mceliece.h>
+
+extern "C" {
+
+int pqcrypto_mceliece_randombytes(unsigned char* x, unsigned long long xlen) {
+  if (RAND_bytes(x, xlen) != 1)
+    Napi::Error::Fatal(__FILE__, "RAND_bytes failed");
+  return 0;
+}
+
+}
 
 namespace {
 
 typedef int (*keypair_fn_t)(unsigned char* public_key, unsigned char* private_key);
 typedef int (*encrypt_fn_t)(unsigned char* ciphertext, unsigned char* key, const unsigned char* public_key);
 typedef int (*decrypt_fn_t)(unsigned char* key, const unsigned char* ciphertext, const unsigned char* public_key);
-typedef void (*seed_fn_t)(unsigned char* entropy_input, unsigned char* personalization_string, int security_strength);
 
 typedef struct {
   const char* name;
@@ -21,7 +31,6 @@ typedef struct {
   keypair_fn_t keypair;
   encrypt_fn_t encrypt;
   decrypt_fn_t decrypt;
-  seed_fn_t seed;
 } mceliece_t;
 
 static const mceliece_t kems[] = {
@@ -33,8 +42,7 @@ static const mceliece_t kems[] = {
     crypto_kem_mceliece348864_ref_CIPHERTEXTBYTES,
     crypto_kem_mceliece348864_ref_keypair,
     crypto_kem_mceliece348864_ref_enc,
-    crypto_kem_mceliece348864_ref_dec,
-    pqcrypto_kem_mceliece348864_impl_priv_randombytes_init
+    crypto_kem_mceliece348864_ref_dec
   },
   {
     "mceliece348864f",
@@ -44,8 +52,7 @@ static const mceliece_t kems[] = {
     crypto_kem_mceliece348864f_ref_CIPHERTEXTBYTES,
     crypto_kem_mceliece348864f_ref_keypair,
     crypto_kem_mceliece348864f_ref_enc,
-    crypto_kem_mceliece348864f_ref_dec,
-    pqcrypto_kem_mceliece348864f_impl_priv_randombytes_init
+    crypto_kem_mceliece348864f_ref_dec
   },
   {
     "mceliece460896",
@@ -55,8 +62,7 @@ static const mceliece_t kems[] = {
     crypto_kem_mceliece460896_ref_CIPHERTEXTBYTES,
     crypto_kem_mceliece460896_ref_keypair,
     crypto_kem_mceliece460896_ref_enc,
-    crypto_kem_mceliece460896_ref_dec,
-    pqcrypto_kem_mceliece460896_impl_priv_randombytes_init
+    crypto_kem_mceliece460896_ref_dec
   },
   {
     "mceliece460896f",
@@ -66,8 +72,7 @@ static const mceliece_t kems[] = {
     crypto_kem_mceliece460896f_ref_CIPHERTEXTBYTES,
     crypto_kem_mceliece460896f_ref_keypair,
     crypto_kem_mceliece460896f_ref_enc,
-    crypto_kem_mceliece460896f_ref_dec,
-    pqcrypto_kem_mceliece460896f_impl_priv_randombytes_init
+    crypto_kem_mceliece460896f_ref_dec
   },
   {
     "mceliece6688128",
@@ -77,8 +82,7 @@ static const mceliece_t kems[] = {
     crypto_kem_mceliece6688128_ref_CIPHERTEXTBYTES,
     crypto_kem_mceliece6688128_ref_keypair,
     crypto_kem_mceliece6688128_ref_enc,
-    crypto_kem_mceliece6688128_ref_dec,
-    pqcrypto_kem_mceliece6688128_impl_priv_randombytes_init
+    crypto_kem_mceliece6688128_ref_dec
   },
   {
     "mceliece6688128f",
@@ -88,8 +92,7 @@ static const mceliece_t kems[] = {
     crypto_kem_mceliece6688128f_ref_CIPHERTEXTBYTES,
     crypto_kem_mceliece6688128f_ref_keypair,
     crypto_kem_mceliece6688128f_ref_enc,
-    crypto_kem_mceliece6688128f_ref_dec,
-    pqcrypto_kem_mceliece6688128f_impl_priv_randombytes_init
+    crypto_kem_mceliece6688128f_ref_dec
   },
   {
     "mceliece6960119",
@@ -99,8 +102,7 @@ static const mceliece_t kems[] = {
     crypto_kem_mceliece6960119_ref_CIPHERTEXTBYTES,
     crypto_kem_mceliece6960119_ref_keypair,
     crypto_kem_mceliece6960119_ref_enc,
-    crypto_kem_mceliece6960119_ref_dec,
-    pqcrypto_kem_mceliece6960119_impl_priv_randombytes_init
+    crypto_kem_mceliece6960119_ref_dec
   },
   {
     "mceliece6960119f",
@@ -110,8 +112,7 @@ static const mceliece_t kems[] = {
     crypto_kem_mceliece6960119f_ref_CIPHERTEXTBYTES,
     crypto_kem_mceliece6960119f_ref_keypair,
     crypto_kem_mceliece6960119f_ref_enc,
-    crypto_kem_mceliece6960119f_ref_dec,
-    pqcrypto_kem_mceliece6960119f_impl_priv_randombytes_init
+    crypto_kem_mceliece6960119f_ref_dec
   },
   {
     "mceliece8192128",
@@ -121,8 +122,7 @@ static const mceliece_t kems[] = {
     crypto_kem_mceliece8192128_ref_CIPHERTEXTBYTES,
     crypto_kem_mceliece8192128_ref_keypair,
     crypto_kem_mceliece8192128_ref_enc,
-    crypto_kem_mceliece8192128_ref_dec,
-    pqcrypto_kem_mceliece8192128_impl_priv_randombytes_init
+    crypto_kem_mceliece8192128_ref_dec
   },
   {
     "mceliece8192128f",
@@ -132,8 +132,7 @@ static const mceliece_t kems[] = {
     crypto_kem_mceliece8192128f_ref_CIPHERTEXTBYTES,
     crypto_kem_mceliece8192128f_ref_keypair,
     crypto_kem_mceliece8192128f_ref_enc,
-    crypto_kem_mceliece8192128f_ref_dec,
-    pqcrypto_kem_mceliece8192128f_impl_priv_randombytes_init
+    crypto_kem_mceliece8192128f_ref_dec
   }
 };
 
@@ -383,26 +382,6 @@ class McEliece : public Napi::ObjectWrap<McEliece> {
   const mceliece_t* impl;
 };
 
-Napi::Value Seed(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-
-  Napi::Buffer<unsigned char> entropy_input = info[0].As<Napi::Buffer<unsigned char>>();
-  if (entropy_input.Length() != 48) {
-    Napi::Error::New(env, "Entropy input must have 48 bytes").ThrowAsJavaScriptException();
-    return env.Undefined();
-  }
-
-  unsigned char entropy[48];
-  memcpy(entropy, entropy_input.Data(), 48);
-
-  for (unsigned int i = 0; i < sizeof(kems) / sizeof(*kems); i++) {
-    kems[i].seed(entropy, nullptr, 256);
-    entropy[0]++;
-  }
-
-  return env.Undefined();
-}
-
 static Napi::Object Init(Napi::Env env, Napi::Object exports) {
   Napi::HandleScope scope(env);
 
@@ -423,7 +402,6 @@ static Napi::Object Init(Napi::Env env, Napi::Object exports) {
   func.Set("supportedAlgorithms", supported_algorithms);
 
   exports.Set("McEliece", func);
-  exports.Set("seed", Napi::Function::New(env, &Seed));
   return exports;
 }
 
