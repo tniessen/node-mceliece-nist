@@ -10,9 +10,8 @@
   "devDependencies": {},
   "scripts": {
     "test": "node test",
-    "build-deps": "cd deps && ./build",
     "build-self": "node-gyp rebuild",
-    "install": "npm run build-deps && npm run build-self"
+    "install": "npm run build-self"
   },
   "repository": {
     "type": "git",

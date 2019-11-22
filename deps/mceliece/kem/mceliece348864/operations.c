@@ -1,6 +1,6 @@
 #include "operations.h"
 
-#include "aes256ctr.h"
+#include "../../mceliece_externals.h"
 #include "controlbits.h"
 #include "randombytes.h"
 #include "crypto_hash.h"

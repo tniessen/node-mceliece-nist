@@ -1,1 +1,1 @@
-#include "nist/rng.h"
+#include "../../mceliece_externals.h"

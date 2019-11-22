@@ -5,9 +5,12 @@
 
 #include <openssl/evp.h>
 #include <openssl/rand.h>
-#include <mceliece.h>
 
 extern "C" {
+
+#define NO_SHORT_NAMES_FOR_EXTERNALS
+#include <mceliece.h>
+#include <mceliece_externals.h>
 
 #define CHECK(a, message) do {                                             \
                             if ((a) != 1) {                                \
@@ -44,6 +47,37 @@ int pqcrypto_mceliece_aes256ctr(unsigned char* out,
         "EVP_EncryptFinal_ex failed");
 
   EVP_CIPHER_CTX_free(ctx);
+  return 0;
+}
+
+int pqcrypto_mceliece_KeccakWidth1600_Sponge(unsigned int rate,
+                                             unsigned int capacity,
+                                             const unsigned char* input,
+                                             size_t inputByteLen,
+                                             unsigned char suffix,
+                                             unsigned char* output,
+                                             size_t outputByteLen) {
+  CHECK(rate == 1088,
+        "Unexpected Keccak rate");
+  CHECK(capacity == 512,
+        "Unexpected Keccak capacity");
+  CHECK(suffix == 0x1f,
+        "Unexpected Keccak suffix");
+  CHECK(outputByteLen == 32,
+        "Unexpected Keccak output size");
+
+  EVP_MD_CTX* ctx;
+
+  CHECK((ctx = EVP_MD_CTX_create()) != NULL,
+        "EVP_MD_CTX_create failed");
+  CHECK(EVP_DigestInit_ex(ctx, EVP_shake256(), NULL),
+        "EVP_DigestInit_ex failed");
+  CHECK(EVP_DigestUpdate(ctx, input, inputByteLen),
+        "EVP_DigestUpdate failed");
+  CHECK(EVP_DigestFinalXOF(ctx, output, outputByteLen),
+        "EVP_DigestFinalXOF failed");
+
+  EVP_MD_CTX_free(ctx);
   return 0;
 }
 

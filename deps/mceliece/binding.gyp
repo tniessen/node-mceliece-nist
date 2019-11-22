@@ -19,7 +19,6 @@
     {
       'target_name': 'only_mceliece348864',
       'type': 'static_library',
-      'include_dirs': ['../KeccakCodePackage/bin/generic64'],
       'sources': [
         'kem/mceliece348864/operations.c',
         'kem/mceliece348864/encrypt.c',
@@ -74,7 +73,6 @@
     {
       'target_name': 'only_mceliece348864f',
       'type': 'static_library',
-      'include_dirs': ['../KeccakCodePackage/bin/generic64'],
       'sources': [
         'kem/mceliece348864f/operations.c',
         'kem/mceliece348864f/encrypt.c',
@@ -129,7 +127,6 @@
     {
       'target_name': 'only_mceliece460896',
       'type': 'static_library',
-      'include_dirs': ['../KeccakCodePackage/bin/generic64'],
       'sources': [
         'kem/mceliece460896/operations.c',
         'kem/mceliece460896/encrypt.c',
@@ -184,7 +181,6 @@
     {
       'target_name': 'only_mceliece460896f',
       'type': 'static_library',
-      'include_dirs': ['../KeccakCodePackage/bin/generic64'],
       'sources': [
         'kem/mceliece460896f/operations.c',
         'kem/mceliece460896f/encrypt.c',
@@ -239,7 +235,6 @@
     {
       'target_name': 'only_mceliece6688128',
       'type': 'static_library',
-      'include_dirs': ['../KeccakCodePackage/bin/generic64'],
       'sources': [
         'kem/mceliece6688128/operations.c',
         'kem/mceliece6688128/encrypt.c',
@@ -294,7 +289,6 @@
     {
       'target_name': 'only_mceliece6688128f',
       'type': 'static_library',
-      'include_dirs': ['../KeccakCodePackage/bin/generic64'],
       'sources': [
         'kem/mceliece6688128f/operations.c',
         'kem/mceliece6688128f/encrypt.c',
@@ -349,7 +343,6 @@
     {
       'target_name': 'only_mceliece6960119',
       'type': 'static_library',
-      'include_dirs': ['../KeccakCodePackage/bin/generic64'],
       'sources': [
         'kem/mceliece6960119/operations.c',
         'kem/mceliece6960119/encrypt.c',
@@ -404,7 +397,6 @@
     {
       'target_name': 'only_mceliece6960119f',
       'type': 'static_library',
-      'include_dirs': ['../KeccakCodePackage/bin/generic64'],
       'sources': [
         'kem/mceliece6960119f/operations.c',
         'kem/mceliece6960119f/encrypt.c',
@@ -459,7 +451,6 @@
     {
       'target_name': 'only_mceliece8192128',
       'type': 'static_library',
-      'include_dirs': ['../KeccakCodePackage/bin/generic64'],
       'sources': [
         'kem/mceliece8192128/operations.c',
         'kem/mceliece8192128/encrypt.c',
@@ -514,7 +505,6 @@
     {
       'target_name': 'only_mceliece8192128f',
       'type': 'static_library',
-      'include_dirs': ['../KeccakCodePackage/bin/generic64'],
       'sources': [
         'kem/mceliece8192128f/operations.c',
         'kem/mceliece8192128f/encrypt.c',
