@@ -1,6 +1,6 @@
 {
   "name": "mceliece-nist",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Node.js bindings for the reference implementation of the McEliece KEM.",
   "main": "index.js",
   "dependencies": {
@@ -10,8 +10,9 @@
   "devDependencies": {},
   "scripts": {
     "test": "node test",
-    "build-self": "node-gyp rebuild",
-    "install": "npm run build-self"
+    "build-self": "node-gyp rebuild || echo Compilation failed. You can use the module, but native bindings will not be available.",
+    "install": "npm run build-self",
+    "prepack": "cd deps/mceliece && ./build-wasm"
   },
   "repository": {
     "type": "git",
@@ -41,6 +42,7 @@
     "index.js",
     "node_mceliece.cc",
     "package.json",
-    "deps/mceliece"
+    "deps/mceliece",
+    "wasm/"
   ]
 }

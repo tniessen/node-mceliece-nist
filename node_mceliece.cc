@@ -19,13 +19,13 @@ extern "C" {
                             }                                              \
                           } while (0)                                      \
 
-int pqcrypto_mceliece_randombytes(unsigned char* x, unsigned long long xlen) {
+int pqcrypto_mceliece_randombytes(unsigned char* x, size_t xlen) {
   CHECK(RAND_bytes(x, xlen), "RAND_bytes failed");
   return 0;
 }
 
 int pqcrypto_mceliece_aes256ctr(unsigned char* out,
-                                unsigned long long outlen,
+                                size_t outlen,
                                 const unsigned char* nonce,
                                 const unsigned char* key) {
   unsigned char plaintext[outlen];
