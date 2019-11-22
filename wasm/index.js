@@ -107,7 +107,7 @@ class McEliece {
       const publicKey = Buffer.from(bytes(publicKeyPtr, publicKeySize));
       const privateKey = Buffer.from(bytes(privateKeyPtr, privateKeySize));
       if (callback)
-        return callback(null, publicKey, privateKey);
+        return callback(undefined, publicKey, privateKey);
       return { publicKey, privateKey };
     } catch (err) {
       if (callback)
@@ -170,7 +170,7 @@ class McEliece {
 
       const key = Buffer.from(bytes(keyPtr, keySize));
       if (callback)
-        return callback(key);
+        return callback(undefined, key);
       return key;
     } catch (err) {
       if (callback)
