@@ -6,8 +6,7 @@ Bernstein et al.
 
 ## Installation
 
-Currently, installation requires `xsltproc` to compile XKCP. Apart from that,
-install as usual:
+Installation should work as usual:
 
 ```sh
 npm i mceliece-nist
@@ -83,6 +82,4 @@ calls `callback(err, key)` as soon as the key has been decrypted.
 
 ## License
 
-This project is distributed under the ISC license. However, the files contained
-in the submodule `deps/KeccakCodePackage` are distributed under the terms
-described in `deps/KeccakCodePackage/README.markdown`.
+This project is distributed under the ISC license.

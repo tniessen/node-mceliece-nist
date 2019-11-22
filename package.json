@@ -41,17 +41,6 @@
     "index.js",
     "node_mceliece.cc",
     "package.json",
-    "deps/build",
-    "deps/KeccakCodePackage/doc/HOWTO-customize.build",
-    "deps/KeccakCodePackage/lib",
-    "deps/KeccakCodePackage/tests/SUPERCOP/SUPERCOP.build",
-    "deps/KeccakCodePackage/tests/NIST_LWC/NIST_LWC.build",
-    "deps/KeccakCodePackage/LICENSE",
-    "deps/KeccakCodePackage/Makefile",
-    "deps/KeccakCodePackage/Makefile.build",
-    "deps/KeccakCodePackage/README.markdown",
-    "deps/KeccakCodePackage/support",
-    "deps/KeccakCodePackage/util",
     "deps/mceliece"
   ]
 }
