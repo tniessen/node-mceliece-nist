@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0,12 * * *'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version:
+          - 15.x
+          - 14.x
+          - 13.x
+          - 12.x
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{matrix.node-version }}
+      - run: npm install
+      - run: npm test
+  test-wasm:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version:
+          - 15.x
+          - 14.x
+          - 13.x
+          - 12.x
+    steps:
+      - uses: actions/checkout@master
+      - uses: mymindstorm/setup-emsdk@v7
+        with:
+          version: 2.0.15
+      - run: npm pack
+      - run: rm -rf build
+      - run: npm test
