@@ -34,7 +34,7 @@ done; echo -n ']') | sed 's/,\]/]/'`
 
 echo "Linking"
 all_objs=`find $obj_dir -type f -name '*.bc'`
-emcc -std=c11 -Oz $all_objs -o $build_dir/mceliece.wasm -s EXPORTED_FUNCTIONS="$all_exports" -s ERROR_ON_UNDEFINED_SYMBOLS=0
+emcc -std=c11 -Oz $all_objs -o $build_dir/mceliece.wasm -s EXPORTED_FUNCTIONS="$all_exports" -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s WASM=1 --no-entry
 
 echo "Converting header"
 (
