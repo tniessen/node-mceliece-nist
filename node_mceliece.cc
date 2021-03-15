@@ -260,7 +260,11 @@ class KeygenWorker : public Napi::AsyncWorker {
   std::vector<napi_value> GetResult(Napi::Env env) override {
     const auto public_key_buf = Napi::Buffer<unsigned char>::New(env, public_key, impl->public_key_size, Free);
     const auto private_key_buf = Napi::Buffer<unsigned char>::New(env, private_key, impl->private_key_size, Free);
-    return { env.Undefined(), public_key_buf, private_key_buf };
+
+    Napi::Object obj = Napi::Object::New(env);
+    obj.Set("publicKey", public_key_buf);
+    obj.Set("privateKey", private_key_buf);
+    return { env.Undefined(), obj };
   }
 
  private:

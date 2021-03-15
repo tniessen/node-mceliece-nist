@@ -63,10 +63,12 @@ for (const algorithm of McEliece.supportedAlgorithms) {
   // the main thread was blocked.
   let wasAsync = false;
 
-  kem.keypair((err, publicKey, privateKey) => {
+  kem.keypair((err, result) => {
     assert(wasAsync);
-
     assert.ifError(err);
+
+    const { publicKey, privateKey } = result;
+
     assert(Buffer.isBuffer(publicKey));
     assert.strictEqual(publicKey.length, publicKeySize);
     assert(Buffer.isBuffer(privateKey));

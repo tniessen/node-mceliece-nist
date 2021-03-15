@@ -110,8 +110,12 @@ module.exports.createClass = (mod) => {
         return doAsync(this[kImpl].name, 'keypair', [], (err, result) => {
           if (err)
             return callback(err);
+
           const { publicKey, privateKey } = result;
-          callback(undefined, buffer(publicKey), buffer(privateKey));
+          callback(undefined, {
+            publicKey: buffer(publicKey),
+            privateKey: buffer(privateKey)
+          });
         });
       }
 

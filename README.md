@@ -66,7 +66,7 @@ Creates and returns a new key pair `{ publicKey, privateKey }`. Both keys will
 be returned as `Buffer`s.
 
 If `callback` is a function, `keypair` immediately returns `undefined` and calls
-`callback(err, publicKey, privateKey)` as soon as a new keypair has been
+`callback(err, { publicKey, privateKey })` as soon as a new keypair has been
 generated.
 
 #### `instance.generateKey(publicKey)`
