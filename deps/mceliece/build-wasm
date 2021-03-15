@@ -38,6 +38,7 @@ emcc -std=c11 -Oz $all_objs -o $build_dir/mceliece.wasm -s EXPORTED_FUNCTIONS="$
 
 echo "Converting header"
 (
+  echo -e "'use strict';\n"
   echo 'module.exports = {'
   cat mceliece.h | grep -P '#define crypto_kem_mceliece([0-9f]+)_ref' | sed -e 's/#define /  /g;' | sed -E 's/ ([0-9]+)/: \1,/g'
   echo '};'

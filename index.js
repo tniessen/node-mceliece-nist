@@ -1,3 +1,5 @@
+'use strict';
+
 let McEliece;
 try {
   // Try to load native bindings first.

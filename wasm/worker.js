@@ -1,3 +1,5 @@
+'use strict';
+
 const { parentPort, workerData } = require('worker_threads');
 
 const { createClass } = require('./impl');

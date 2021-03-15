@@ -1,3 +1,5 @@
+'use strict';
+
 const assert = require('assert');
 const { Worker } = require('worker_threads');
 const { createCipheriv, createHash, randomFillSync } = require('crypto');
