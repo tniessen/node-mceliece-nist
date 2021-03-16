@@ -10,4 +10,4 @@ try {
   process.emitWarning(`Using WebAssembly backend: ${err.message}`);
 }
 
-module.exports.McEliece = McEliece;
+Object.defineProperty(module.exports, 'McEliece', { value: McEliece });
