@@ -470,7 +470,7 @@ static Napi::Object Init(Napi::Env env, Napi::Object exports) {
   for (unsigned int i = 0; i < sizeof(kems) / sizeof(*kems); i++) {
     supported_algorithms[i] = Napi::String::New(env, kems[i].name);
   }
-  func.Set("supportedAlgorithms", supported_algorithms);
+  func.DefineProperty(Napi::PropertyDescriptor::Value("supportedAlgorithms", supported_algorithms));
 
   exports.Set("McEliece", func);
   return exports;

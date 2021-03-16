@@ -209,7 +209,9 @@ module.exports.createClass = (mod) => {
     }
   }
 
-  McEliece.supportedAlgorithms = Object.keys(kems);
+  Object.defineProperty(McEliece, 'supportedAlgorithms', {
+    value: Object.keys(kems)
+  });
 
   return McEliece;
 }

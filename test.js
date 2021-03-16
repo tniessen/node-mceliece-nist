@@ -6,6 +6,7 @@ const { McEliece } = require('./');
 
 assert(Array.isArray(McEliece.supportedAlgorithms));
 assert(McEliece.supportedAlgorithms.length >= 2);
+assert.throws(() => McEliece.supportedAlgorithms = []);
 
 for (const algorithm of McEliece.supportedAlgorithms) {
   console.log(`Testing ${algorithm}`);
