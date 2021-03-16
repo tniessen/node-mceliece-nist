@@ -10,8 +10,8 @@
   "devDependencies": {},
   "scripts": {
     "test": "node test",
-    "build-native": "node-gyp rebuild || echo Compilation failed. You can use the module, but native bindings will not be available.",
-    "install": "npm run build-native",
+    "build-native": "node-gyp rebuild",
+    "install": "npm run build-native || echo Compilation failed. You can use the module, but native bindings will not be available.",
     "build-wasm": "cd deps/mceliece && ./build-wasm",
     "prepack": "npm run build-wasm"
   },
