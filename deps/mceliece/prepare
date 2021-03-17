@@ -47,7 +47,7 @@ add_gyp() {
 patch_files() {
   id=$1
 
-  rm -rf kem/$id/nist kem/$id/aes256ctr.*
+  rm -rf kem/$id/nist kem/$id/aes256ctr.* $(find kem/$id -type f ! -name '*.c' ! -name '*.h')
   find kem/$id -type f \( -name '*.c' -o -name '*.h' \) | while read source; do
     sed -i 's=<libkeccak\.a\.headers/KeccakSpongeWidth1600\.h>="../../mceliece_externals.h"=g; s="nist/rng.h"="../../mceliece_externals.h"=g; s="aes256ctr.h"="../../mceliece_externals.h"=g' $source
   done
