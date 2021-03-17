@@ -13,7 +13,7 @@ prepare_algorithm() {
 
 add_header() {
   id=$1
-  cat kem/$id/crypto_kem_$id.h >> mceliece.h
+  echo "#include \"kem/$id/crypto_kem_$id.h\"" >> mceliece.h
 }
 
 add_gyp() {
@@ -27,7 +27,7 @@ add_gyp() {
     echo "      'target_name': 'only_$id',"
     echo "      'type': 'static_library',"
     echo "      'sources': ["
-    find kem/$id -maxdepth 1 -type f -name '*.c' | grep -v 'aes256ctr' | while read source; do
+    find kem/$id -maxdepth 1 -type f -name '*.c' | grep -v 'aes256ctr' | sort | while read source; do
       echo "        '$source',"
     done
     echo "      ],"
@@ -55,7 +55,7 @@ patch_files() {
 
 rm -f mceliece.h
 
-implementations=`ls -1 kem | while read id; do if [ -d "kem/$id" ]; then echo $id; fi; done`
+implementations=`ls -1 kem | while read id; do if [ -d "kem/$id" ]; then echo $id; fi; done | sort`
 (
   echo "{"
   echo "  'targets': ["

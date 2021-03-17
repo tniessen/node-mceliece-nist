@@ -40,7 +40,7 @@ echo "Converting header"
 (
   echo -e "'use strict';\n"
   echo 'module.exports = {'
-  cat mceliece.h | grep -P '#define crypto_kem_mceliece([0-9f]+)_ref' | sed -e 's/#define /  /g;' | sed -E 's/ ([0-9]+)/: \1,/g'
+  cat kem/mceliece*/crypto_kem_mceliece*.h | sort | grep -P '#define crypto_kem_mceliece([0-9f]+)_ref' | sed -e 's/#define /  /g;' | sed -E 's/ ([0-9]+)/: \1,/g'
   echo '};'
 ) > $build_dir/mceliece_constants.js
 
