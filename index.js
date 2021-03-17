@@ -10,4 +10,6 @@ try {
   process.emitWarning(`Using WebAssembly backend: ${err.message}`);
 }
 
+Object.freeze(McEliece.supportedAlgorithms);
+
 Object.defineProperty(module.exports, 'McEliece', { value: McEliece });
