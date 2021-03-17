@@ -10,8 +10,6 @@ compile_algorithm() {
 
   variables="-Dapply_benes=pqcrypto_kem_${id}_impl_priv_apply_benes -Dbitrev=pqcrypto_kem_${id}_impl_priv_bitrev -Dbm=pqcrypto_kem_${id}_impl_priv_bm -Dcontrolbits=pqcrypto_kem_${id}_impl_priv_controlbits -Ddecrypt=pqcrypto_kem_${id}_impl_priv_decrypt -Dencrypt=pqcrypto_kem_${id}_impl_priv_encrypt -Deval=pqcrypto_kem_${id}_impl_priv_eval -Dgf_add=pqcrypto_kem_${id}_impl_priv_gf_add -Dgf_frac=pqcrypto_kem_${id}_impl_priv_gf_frac -Dgf_inv=pqcrypto_kem_${id}_impl_priv_gf_inv -Dgf_iszero=pqcrypto_kem_${id}_impl_priv_gf_iszero -Dgf_mul=pqcrypto_kem_${id}_impl_priv_gf_mul -DGF_mul=pqcrypto_kem_${id}_impl_priv_GF_mul -Dload2=pqcrypto_kem_${id}_impl_priv_load2 -Dload8=pqcrypto_kem_${id}_impl_priv_load8 -Dperm_conversion=pqcrypto_kem_${id}_impl_priv_perm_conversion -Dpk_gen=pqcrypto_kem_${id}_impl_priv_pk_gen -Droot=pqcrypto_kem_${id}_impl_priv_root -Dsk_part_gen=pqcrypto_kem_${id}_impl_priv_sk_part_gen -Dsort_63b=pqcrypto_kem_${id}_impl_priv_sort_63b -Dstore2=pqcrypto_kem_${id}_impl_priv_store2 -Dstore8=pqcrypto_kem_${id}_impl_priv_store8 -Dsupport_gen=pqcrypto_kem_${id}_impl_priv_support_gen -Dsynd=pqcrypto_kem_${id}_impl_priv_synd -Dsyndrome=pqcrypto_kem_${id}_impl_priv_syndrome -Dtranspose_64x64=pqcrypto_kem_${id}_impl_priv_transpose_64x64 -Dload4=pqcrypto_kem_${id}_impl_priv_load4 -DhandleErrors=pqcrypto_kem_${id}_impl_priv_handleErrors -Dperm_check=pqcrypto_kem_${id}_impl_priv_perm_check -Dgenpoly_gen=pqcrypto_kem_${id}_impl_priv_genpoly_gen"
 
-  exports="\"crypto_kem_${id}_ref_keypair\",\"crypto_kem_${id}_ref_enc\",\"crypto_kem_${id}_ref_dec\""
-
   find kem/$id -type f -name '*.c' | while read source; do
     target=$obj_dir/${source%.c}.bc
     echo "  $source -> $target"
