@@ -1,97 +1,119 @@
 'use strict';
 
-const assert = require('assert');
+const test = require('tape');
 
 const { McEliece } = require('./');
 
-assert(Array.isArray(McEliece.supportedAlgorithms));
-assert(McEliece.supportedAlgorithms.length >= 2);
-assert.throws(() => McEliece.supportedAlgorithms = []);
-assert.throws(() => McEliece.supportedAlgorithms.shift());
+test('McEliece constructor', (t) => {
+  t.plan(1);
 
-for (const algorithm of McEliece.supportedAlgorithms) {
-  console.log(`Testing ${algorithm}`);
+  t.throws(() => new McEliece('foo'),
+           /No such implementation/,
+           'should throw if the algorithm does not exist');
+});
 
-  const kem = new McEliece(algorithm);
-  const { keySize, encryptedKeySize, publicKeySize, privateKeySize } = kem;
+test('McEliece.supportedAlgorithms', (t) => {
+  t.plan(4);
 
-  console.log(`  Key size: ${keySize}`);
-  console.log(`  Encrypted key size: ${encryptedKeySize}`);
-  console.log(`  Public key size: ${publicKeySize}`);
-  console.log(`  Private key size: ${privateKeySize}`);
+  t.ok(Array.isArray(McEliece.supportedAlgorithms),
+       'supportedAlgorithms should be an array');
 
-  // Generate a key pair.
-  const { publicKey, privateKey } = kem.keypair();
-  assert(Buffer.isBuffer(publicKey));
-  assert.strictEqual(publicKey.length, publicKeySize);
-  assert(Buffer.isBuffer(privateKey));
-  assert.strictEqual(privateKey.length, privateKeySize);
+  t.ok(McEliece.supportedAlgorithms.length >= 2,
+       'supportedAlgorithms should contain multiple algorithms');
 
-  // Encrypt and decrypt some keys.
-  for (let i = 0; i < 10; i++) {
-    const { key, encryptedKey } = kem.generateKey(publicKey);
-    assert.strictEqual(key.length, keySize);
-    assert.strictEqual(encryptedKey.length, encryptedKeySize);
+  t.throws(() => McEliece.supportedAlgorithms = [],
+           'supportedAlgorithms should not be writable');
 
-    const receivedKey = kem.decryptKey(privateKey, encryptedKey);
-    assert.deepStrictEqual(receivedKey, key);
-  }
-}
-
-// Use static test vectors to make sure that the output is correct.
-const vectors = require('./test_vectors');
-for (const { algorithm, privateKey, encryptedKey, key } of vectors) {
-  console.log(`Testing ${algorithm} with key ${key}`);
-  const kem = new McEliece(algorithm);
-  const receivedKey = kem.decryptKey(Buffer.from(privateKey, 'base64'),
-                                     Buffer.from(encryptedKey, 'base64'));
-  assert.strictEqual(receivedKey.toString('base64'), key);
-}
-
-// Keep track of algorithms that passed asynchronous tests.
-const workingAsyncAlgorithms = [];
-process.on('exit', () => {
-  assert.strictEqual(workingAsyncAlgorithms.length,
-                     McEliece.supportedAlgorithms.length);
+  t.throws(() => McEliece.supportedAlgorithms.shift(),
+           'supportedAlgorithms should not be modifiable');
 });
 
 for (const algorithm of McEliece.supportedAlgorithms) {
-  console.log(`Testing async ${algorithm}`);
+  test(`synchronous ${algorithm}`, (t) => {
+    const kem = new McEliece(algorithm);
+    const { keySize, encryptedKeySize, publicKeySize, privateKeySize } = kem;
 
-  const kem = new McEliece(algorithm);
-  const { keySize, encryptedKeySize, publicKeySize, privateKeySize } = kem;
+    // Generate a key pair.
+    const { publicKey, privateKey } = kem.keypair();
 
-  // This variable will be set to true synchronously in order to detect whether
-  // the main thread was blocked.
-  let wasAsync = false;
+    t.ok(Buffer.isBuffer(publicKey),
+         'publicKey should be a Buffer');
+    t.equal(publicKey.length, publicKeySize,
+            `publicKey.length should be ${publicKeySize}`);
+    t.ok(Buffer.isBuffer(privateKey),
+         'privateKey should be a Buffer');
+    t.equal(privateKey.length, privateKeySize,
+            `privateKey.length should be ${privateKeySize}`);
 
-  kem.keypair((err, result) => {
-    assert(wasAsync);
-    assert.ifError(err);
-
-    const { publicKey, privateKey } = result;
-
-    assert(Buffer.isBuffer(publicKey));
-    assert.strictEqual(publicKey.length, publicKeySize);
-    assert(Buffer.isBuffer(privateKey));
-    assert.strictEqual(privateKey.length, privateKeySize);
-
+    // Encrypt and decrypt.
     const { key, encryptedKey } = kem.generateKey(publicKey);
-    assert.strictEqual(key.length, keySize);
-    assert.strictEqual(encryptedKey.length, encryptedKeySize);
+    t.equal(key.length, keySize,
+            `key.length should be ${keySize}`);
+    t.equal(encryptedKey.length, encryptedKeySize,
+            `encryptedKey.length should be ${encryptedKeySize}`);
 
-    wasAsync = false;
-    kem.decryptKey(privateKey, encryptedKey, (err, receivedKey) => {
-      assert(wasAsync);
+    const receivedKey = kem.decryptKey(privateKey, encryptedKey);
+    t.deepEqual(receivedKey, key, 'decrypted key should match generated key');
 
-      assert.ifError(err);
-      assert.deepStrictEqual(receivedKey, key);
+    t.end();
+  });
 
-      workingAsyncAlgorithms.push(algorithm);
+  test(`asynchronous ${algorithm}`, (t) => {
+    const kem = new McEliece(algorithm);
+    const { keySize, encryptedKeySize, publicKeySize, privateKeySize } = kem;
+
+    // This variable will be set to true synchronously in order to detect whether
+    // the main thread was blocked.
+    let wasAsync = false;
+
+    kem.keypair((err, result) => {
+      t.ok(wasAsync, 'keypair with callback should be async');
+      t.error(err, 'decryptKey should not fail');
+
+      const { publicKey, privateKey } = result;
+
+      t.ok(Buffer.isBuffer(publicKey),
+           'publicKey should be a Buffer');
+      t.equal(publicKey.length, publicKeySize,
+              `publicKey.length should be ${publicKeySize}`);
+      t.ok(Buffer.isBuffer(privateKey),
+           'privateKey should be a Buffer');
+      t.equal(privateKey.length, privateKeySize,
+              `privateKey.length should be ${privateKeySize}`);
+
+      const { key, encryptedKey } = kem.generateKey(publicKey);
+      t.equal(key.length, keySize,
+              `key.length should be ${keySize}`);
+      t.equal(encryptedKey.length, encryptedKeySize,
+              `encryptedKey.length should be ${encryptedKeySize}`);
+
+      wasAsync = false;
+      kem.decryptKey(privateKey, encryptedKey, (err, receivedKey) => {
+        t.ok(wasAsync, 'decryptKey with callback should be async');
+        t.error(err, 'decryptKey should not fail');
+
+        t.deepEqual(receivedKey, key,
+                    'decrypted key should match generated key');
+        t.end();
+      });
+
+      wasAsync = true;
     });
 
     wasAsync = true;
   });
-
-  wasAsync = true;
 }
+
+// Use static test vectors to make sure that the output is correct.
+test('KAT test vectors', (t) => {
+  const vectors = require('./test_vectors');
+  t.plan(vectors.length);
+
+  for (const { algorithm, privateKey, encryptedKey, key } of vectors) {
+    const kem = new McEliece(algorithm);
+    const receivedKey = kem.decryptKey(Buffer.from(privateKey, 'base64'),
+                                       Buffer.from(encryptedKey, 'base64'));
+    t.equal(receivedKey.toString('base64'), key,
+            `KAT vector for ${algorithm} should produce ${key}`);
+  }
+});

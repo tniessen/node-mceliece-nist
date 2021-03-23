@@ -42,6 +42,7 @@ jobs:
       - uses: mymindstorm/setup-emsdk@v7
         with:
           version: 2.0.15
+      - run: npm install --ignore-scripts
       - run: npm run build-wasm
       - run: rm -rf build
       - run: npm test
