@@ -29,6 +29,28 @@ test('McEliece.supportedAlgorithms', (t) => {
 });
 
 for (const algorithm of McEliece.supportedAlgorithms) {
+  test(`properties of ${algorithm}`, (st) => {
+    const [, n, t] = /^mceliece(\d{4})(\d{2,3})f?$/.exec(algorithm);
+    const m = Math.ceil(Math.log2(n));
+    const k = n - m * t;
+    st.ok(k > 0 && Number.isSafeInteger(k), 'n, k, t should be valid');
+
+    const kem = new McEliece(algorithm);
+    st.equal(kem.keySize, 32, 'keySize should be 32 bytes');
+    st.equal(kem.encryptedKeySize, Math.ceil(m * t / 8) + 32,
+             'encryptedKeySize should be ceil(m * t / 8) + 32 bytes');
+    st.equal(kem.publicKeySize, m * t * Math.ceil(k / 8),
+             'publicKeySize should be m * t * ceil(k / 8) bytes');
+    st.equal(kem.privateKeySize,
+             Math.ceil(n / 8) +                    // s
+             t * Math.ceil(m / 8) +                // g_0, ..., g_(t-1)
+             Math.ceil((2 * m - 1) * 2**(m - 4)),  // alpha_1, ..., alpha_n
+             'privateKeySize should be ceil(n / 8) + t * ceil(m / 8) + ' +
+             'ceil((2m - 1) * 2**(m - 4)) bytes');
+
+    st.end();
+  });
+
   test(`synchronous ${algorithm}`, (t) => {
     const kem = new McEliece(algorithm);
     const { keySize, encryptedKeySize, publicKeySize, privateKeySize } = kem;
