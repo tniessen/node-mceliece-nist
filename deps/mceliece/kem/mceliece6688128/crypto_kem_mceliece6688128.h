@@ -2,7 +2,7 @@
 #define crypto_kem_mceliece6688128_H
 
 #define crypto_kem_mceliece6688128_ref_PUBLICKEYBYTES 1044992
-#define crypto_kem_mceliece6688128_ref_SECRETKEYBYTES 13892
+#define crypto_kem_mceliece6688128_ref_SECRETKEYBYTES 13932
 #define crypto_kem_mceliece6688128_ref_CIPHERTEXTBYTES 240
 #define crypto_kem_mceliece6688128_ref_BYTES 32
 

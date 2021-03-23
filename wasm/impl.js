@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const { Worker } = require('worker_threads');
-const { createCipheriv, createHash, randomFillSync } = require('crypto');
+const { createHash, randomFillSync } = require('crypto');
 
 const constants = require('./mceliece_constants.js');
 
@@ -28,25 +28,11 @@ module.exports.createClass = (mod) => {
       pqcrypto_mceliece_randombytes(ptr, count) {
         randomFillSync(bytes(ptr, count));
       },
-      pqcrypto_mceliece_aes256ctr(outPtr, outlen, noncePtr, keyPtr) {
-        const out = bytes(outPtr, outlen);
-        const nonce = bytes(noncePtr, 16);
-        const key = bytes(keyPtr, 32);
-
-        createCipheriv('aes-256-ctr', key, nonce)
-        .update(Buffer.alloc(outlen))
-        .copy(out);
-      },
-      pqcrypto_mceliece_KeccakWidth1600_Sponge(rate, capacity, inputPtr, inputByteLen, suffix, outputPtr, outputByteLen) {
-        assert.strictEqual(rate, 1088);
-        assert.strictEqual(capacity, 512);
-        assert.strictEqual(suffix, 0x1f);
-        assert.strictEqual(outputByteLen, 32);
-
+      pqcrypto_mceliece_SHAKE256(outputPtr, outputByteLen, inputPtr, inputByteLen) {
         const input = bytes(inputPtr, inputByteLen);
         const out = bytes(outputPtr, outputByteLen);
 
-        createHash('shake256')
+        createHash('shake256', { outputLength: outputByteLen })
         .update(input)
         .digest()
         .copy(out);

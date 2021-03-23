@@ -24,48 +24,8 @@ int pqcrypto_mceliece_randombytes(unsigned char* x, size_t xlen) {
   return 0;
 }
 
-int pqcrypto_mceliece_aes256ctr(unsigned char* out,
-                                size_t outlen,
-                                const unsigned char* nonce,
-                                const unsigned char* key) {
-  unsigned char plaintext[outlen];
-  memset(plaintext, 0, outlen);
-
-  EVP_CIPHER_CTX* ctx;
-  int outl;
-
-  CHECK((ctx = EVP_CIPHER_CTX_new()) != NULL,
-        "EVP_CIPHER_CTX_new failed");
-  CHECK(EVP_EncryptInit_ex(ctx, EVP_aes_256_ctr(), 0, key, nonce),
-        "EVP_EncryptInit_ex failed");
-  CHECK(EVP_CIPHER_CTX_set_padding(ctx, 0),
-        "EVP_CIPHER_CTX_set_padding failed");
-  CHECK(EVP_EncryptUpdate(ctx, out, &outl, plaintext, outlen) &&
-        outl == (long long) outlen,
-        "EVP_EncryptUpdate failed");
-  CHECK(EVP_EncryptFinal_ex(ctx, out, &outl),
-        "EVP_EncryptFinal_ex failed");
-
-  EVP_CIPHER_CTX_free(ctx);
-  return 0;
-}
-
-int pqcrypto_mceliece_KeccakWidth1600_Sponge(unsigned int rate,
-                                             unsigned int capacity,
-                                             const unsigned char* input,
-                                             size_t inputByteLen,
-                                             unsigned char suffix,
-                                             unsigned char* output,
-                                             size_t outputByteLen) {
-  CHECK(rate == 1088,
-        "Unexpected Keccak rate");
-  CHECK(capacity == 512,
-        "Unexpected Keccak capacity");
-  CHECK(suffix == 0x1f,
-        "Unexpected Keccak suffix");
-  CHECK(outputByteLen == 32,
-        "Unexpected Keccak output size");
-
+int pqcrypto_mceliece_SHAKE256(unsigned char *output, size_t outputByteLen,
+                               const unsigned char *input, size_t inputByteLen) {
   EVP_MD_CTX* ctx;
 
   CHECK((ctx = EVP_MD_CTX_create()) != NULL,

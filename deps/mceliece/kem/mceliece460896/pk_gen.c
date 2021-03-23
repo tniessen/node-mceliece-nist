@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "controlbits.h"
+#include "uint64_sort.h"
 #include "pk_gen.h"
 #include "params.h"
 #include "benes.h"
@@ -16,14 +17,14 @@
 
 /* input: secret key sk */
 /* output: public key pk */
-int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm)
+int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm, int16_t * pi)
 {
 	int i, j, k;
 	int row, c;
 
 	uint64_t buf[ 1 << GFBITS ];
 
-	unsigned char mat[ GFBITS * SYS_T ][ SYS_N/8 ];
+	unsigned char mat[ PK_NROWS ][ SYS_N/8 ];
 	unsigned char mask;
 	unsigned char b;
 
@@ -35,7 +36,7 @@ int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm)
 
 	g[ SYS_T ] = 1;
 
-	for (i = 0; i < SYS_T; i++) { g[i] = load2(sk); g[i] &= GFMASK; sk += 2; }
+	for (i = 0; i < SYS_T; i++) { g[i] = load_gf(sk); sk += 2; }
 
 	for (i = 0; i < (1 << GFBITS); i++)
 	{
@@ -44,10 +45,14 @@ int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm)
 		buf[i] |= i;
 	}
 
-	sort_63b(1 << GFBITS, buf);
+	uint64_sort(buf, 1 << GFBITS);
 
-	for (i = 0; i < (1 << GFBITS); i++) perm[i] = buf[i] & GFMASK;
-	for (i = 0; i < SYS_N;         i++) L[i] = bitrev(perm[i]);
+	for (i = 1; i < (1 << GFBITS); i++)
+		if ((buf[i-1] >> 31) == (buf[i] >> 31))
+			return -1;
+
+	for (i = 0; i < (1 << GFBITS); i++) pi[i] = buf[i] & GFMASK;
+	for (i = 0; i < SYS_N;         i++) L[i] = bitrev(pi[i]);
 
 	// filling the matrix
 
@@ -84,15 +89,15 @@ int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm)
 
 	// gaussian elimination
 
-	for (i = 0; i < (GFBITS * SYS_T + 7) / 8; i++)
+	for (i = 0; i < (PK_NROWS + 7) / 8; i++)
 	for (j = 0; j < 8; j++)
 	{
 		row = i*8 + j;			
 
-		if (row >= GFBITS * SYS_T)
+		if (row >= PK_NROWS)
 			break;
 
-		for (k = row + 1; k < GFBITS * SYS_T; k++)
+		for (k = row + 1; k < PK_NROWS; k++)
 		{
 			mask = mat[ row ][ i ] ^ mat[ k ][ i ];
 			mask >>= j;
@@ -108,7 +113,7 @@ int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm)
 			return -1;
 		}
 
-		for (k = 0; k < GFBITS * SYS_T; k++)
+		for (k = 0; k < PK_NROWS; k++)
 		{
 			if (k != row)
 			{

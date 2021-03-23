@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "controlbits.h"
+#include "uint64_sort.h"
 #include "pk_gen.h"
 #include "params.h"
 #include "benes.h"
@@ -15,39 +16,6 @@
 #include "util.h"
 
 #define min(a, b) ((a < b) ? a : b)
-
-static void transpose_64x64(uint64_t * out, uint64_t * in)
-{
-	int i, j, s, d;
-
-	uint64_t x, y;
-	uint64_t masks[6][2] = {
-	                        {0x5555555555555555, 0xAAAAAAAAAAAAAAAA},
-	                        {0x3333333333333333, 0xCCCCCCCCCCCCCCCC},
-	                        {0x0F0F0F0F0F0F0F0F, 0xF0F0F0F0F0F0F0F0},
-	                        {0x00FF00FF00FF00FF, 0xFF00FF00FF00FF00},
-	                        {0x0000FFFF0000FFFF, 0xFFFF0000FFFF0000},
-	                        {0x00000000FFFFFFFF, 0xFFFFFFFF00000000}
-	                       };
-
-	for (i = 0; i < 64; i++)
-		out[i] = in[i];
-
-	for (d = 5; d >= 0; d--)
-	{
-		s = 1 << d;
-
-		for (i = 0; i < 64; i += s*2)
-		for (j = i; j < i+s; j++)
-		{
-			x = (out[j] & masks[d][0]) | ((out[j+s] & masks[d][0]) << s);
-			y = ((out[j] & masks[d][1]) >> s) | (out[j+s] & masks[d][1]);
-
-			out[j+0] = x;
-			out[j+s] = y;
-		}
-	}
-}
 
 /* return number of trailing zeros of the non-zero input in */
 static inline int ctz(uint64_t in)
@@ -76,13 +44,13 @@ static inline uint64_t same_mask(uint16_t x, uint16_t y)
         return mask;
 }
 
-static int mov_columns(uint8_t mat[][ SYS_N/8 ], uint32_t * perm)
+static int mov_columns(uint8_t mat[][ SYS_N/8 ], int16_t * pi, uint64_t * pivots)
 {
 	int i, j, k, s, block_idx, row, tail;
-	uint64_t buf[64], ctz_list[32], t, d, mask; 
+	uint64_t buf[64], ctz_list[32], t, d, mask, one = 1; 
 	unsigned char tmp[9];       
 
-	row = GFBITS * SYS_T - 32;
+	row = PK_NROWS - 32;
 	block_idx = row/8;
 	tail = row % 8;
 
@@ -98,6 +66,8 @@ static int mov_columns(uint8_t mat[][ SYS_N/8 ], uint32_t * perm)
         
 	// compute the column indices of pivots by Gaussian elimination.
 	// the indices are stored in ctz_list
+	
+	*pivots = 0;
 
 	for (i = 0; i < 32; i++)
 	{
@@ -108,9 +78,9 @@ static int mov_columns(uint8_t mat[][ SYS_N/8 ], uint32_t * perm)
 		if (t == 0) return -1; // return if buf is not full rank
 
 		ctz_list[i] = s = ctz(t);
+		*pivots |= one << ctz_list[i];
 
 		for (j = i+1; j < 32; j++) { mask = (buf[i] >> s) & 1; mask -= 1;    buf[i] ^= buf[j] & mask; }
-		for (j =   0; j <  i; j++) { mask = (buf[j] >> s) & 1; mask = -mask; buf[j] ^= buf[i] & mask; }
 		for (j = i+1; j < 32; j++) { mask = (buf[j] >> s) & 1; mask = -mask; buf[j] ^= buf[i] & mask; }
 	}
    
@@ -119,48 +89,39 @@ static int mov_columns(uint8_t mat[][ SYS_N/8 ], uint32_t * perm)
 	for (j = 0;   j < 32; j++)
 	for (k = j+1; k < 64; k++)
 	{
-			d = perm[ row + j ] ^ perm[ row + k ];
+			d = pi[ row + j ] ^ pi[ row + k ];
 			d &= same_mask(k, ctz_list[j]);
-			perm[ row + j ] ^= d;
-			perm[ row + k ] ^= d;
+			pi[ row + j ] ^= d;
+			pi[ row + k ] ^= d;
 	}
    
 	// moving columns of mat according to the column indices of pivots
 
-	for (i = 0; i < GFBITS*SYS_T; i += 64)
+	for (i = 0; i < PK_NROWS; i++)
 	{
 
-		for (j = 0; j < min(64, GFBITS*SYS_T - i); j++)
-		{
-			for (k = 0; k < 9; k++) tmp[k] = mat[ i + j ][ block_idx + k ];
-			for (k = 0; k < 8; k++) tmp[k] = (tmp[k] >> tail) | (tmp[k+1] << (8-tail));
+		for (k = 0; k < 9; k++) tmp[k] = mat[ i ][ block_idx + k ];
+		for (k = 0; k < 8; k++) tmp[k] = (tmp[k] >> tail) | (tmp[k+1] << (8-tail));
 
-			buf[j] = load8( tmp );
-		}
-               	 
-		transpose_64x64(buf, buf);
-
+		t = load8( tmp );
+		
 		for (j = 0; j < 32; j++)
-		for (k = j+1; k < 64; k++)
 		{
-			d = buf[ j ] ^ buf[ k ];
-			d &= same_mask(k, ctz_list[j]);
-			buf[ j ] ^= d;
-			buf[ k ] ^= d;
+			d  = t >> j;
+			d ^= t >> ctz_list[j];
+			d &= 1;
+        
+			t ^= d << ctz_list[j];
+			t ^= d << j;
 		}
+               	     
+		store8( tmp, t );
 
-		transpose_64x64(buf, buf);
-                
-		for (j = 0; j < min(64, GFBITS*SYS_T - i); j++)
-		{
-			store8( tmp, buf[j] );
+		mat[ i ][ block_idx + 8 ] = (mat[ i ][ block_idx + 8 ] >> tail << tail) | (tmp[7] >> (8-tail));
+		mat[ i ][ block_idx + 0 ] = (tmp[0] << tail) | (mat[ i ][ block_idx ] << (8-tail) >> (8-tail));
 
-			mat[ i + j ][ block_idx + 8 ] = (mat[ i + j ][ block_idx + 8 ] >> tail << tail) | (tmp[7] >> (8-tail));
-			mat[ i + j ][ block_idx + 0 ] = (tmp[0] << tail) | (mat[ i + j ][ block_idx ] << (8-tail) >> (8-tail));
-
-			for (k = 7; k >= 1; k--) 
-				mat[ i + j ][ block_idx + k ] = (tmp[k] << tail) | (tmp[k-1] >> (8-tail));
-		}
+		for (k = 7; k >= 1; k--) 
+			mat[ i ][ block_idx + k ] = (tmp[k] << tail) | (tmp[k-1] >> (8-tail));
 	}
 
 	return 0;
@@ -168,7 +129,7 @@ static int mov_columns(uint8_t mat[][ SYS_N/8 ], uint32_t * perm)
 
 /* input: secret key sk */
 /* output: public key pk */
-int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm)
+int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm, int16_t * pi, uint64_t * pivots)
 {
 	unsigned char *pk_ptr = pk;
 
@@ -177,7 +138,7 @@ int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm)
 
 	uint64_t buf[ 1 << GFBITS ];
 
-	unsigned char mat[ GFBITS * SYS_T ][ SYS_N/8 ];
+	unsigned char mat[ PK_NROWS ][ SYS_N/8 ];
 	unsigned char mask;
 	unsigned char b;
 
@@ -189,7 +150,7 @@ int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm)
 
 	g[ SYS_T ] = 1;
 
-	for (i = 0; i < SYS_T; i++) { g[i] = load2(sk); g[i] &= GFMASK; sk += 2; }
+	for (i = 0; i < SYS_T; i++) { g[i] = load_gf(sk); sk += 2; }
 
 	for (i = 0; i < (1 << GFBITS); i++)
 	{
@@ -198,10 +159,14 @@ int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm)
 		buf[i] |= i;
 	}
 
-	sort_63b(1 << GFBITS, buf);
+	uint64_sort(buf, 1 << GFBITS);
 
-	for (i = 0; i < (1 << GFBITS); i++) perm[i] = buf[i] & GFMASK;
-	for (i = 0; i < SYS_N;         i++) L[i] = bitrev(perm[i]);
+	for (i = 1; i < (1 << GFBITS); i++)
+		if ((buf[i-1] >> 31) == (buf[i] >> 31))
+			return -1;
+
+	for (i = 0; i < (1 << GFBITS); i++) pi[i] = buf[i] & GFMASK;
+	for (i = 0; i < SYS_N;         i++) L[i] = bitrev(pi[i]);
 
 	// filling the matrix
 
@@ -238,21 +203,21 @@ int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm)
 
 	// gaussian elimination
 
-	for (i = 0; i < (GFBITS * SYS_T + 7) / 8; i++)
+	for (i = 0; i < (PK_NROWS + 7) / 8; i++)
 	for (j = 0; j < 8; j++)
 	{
 		row = i*8 + j;			
 
-		if (row >= GFBITS * SYS_T)
+		if (row >= PK_NROWS)
 			break;
 
-		if (row == GFBITS * SYS_T - 32)
+		if (row == PK_NROWS - 32)
 		{
-			if (mov_columns(mat, perm))
+			if (mov_columns(mat, pi, pivots))
 				return -1;
 		}
 
-		for (k = row + 1; k < GFBITS * SYS_T; k++)
+		for (k = row + 1; k < PK_NROWS; k++)
 		{
 			mask = mat[ row ][ i ] ^ mat[ k ][ i ];
 			mask >>= j;
@@ -268,7 +233,7 @@ int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm)
 			return -1;
 		}
 
-		for (k = 0; k < GFBITS * SYS_T; k++)
+		for (k = 0; k < PK_NROWS; k++)
 		{
 			if (k != row)
 			{
@@ -282,11 +247,11 @@ int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm)
 		}
 	}
 
-	tail = (GFBITS * SYS_T) % 8;
+	tail = PK_NROWS % 8;
 
-	for (i = 0; i < GFBITS * SYS_T; i++)
+	for (i = 0; i < PK_NROWS; i++)
 	{
-		for (j = (GFBITS * SYS_T - 1)/8; j < SYS_N/8 - 1; j++)
+		for (j = (PK_NROWS - 1)/8; j < SYS_N/8 - 1; j++)
 			*pk_ptr++ = (mat[i][j] >> tail) | (mat[i][j+1] << (8-tail));
 
 		*pk_ptr++ = (mat[i][j] >> tail);

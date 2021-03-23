@@ -4,7 +4,7 @@ This package provides Node.js bindings for the reference implementation that is
 part of the [NIST submission](https://classic.mceliece.org/nist.html) by
 Bernstein et al.
 
-This version is based on the round-2 submission `mceliece-20190331`.
+This version is based on the round-3 submission `mceliece-20201010`.
 See [`deps/mceliece`](deps/mceliece).
 
 ## Installation

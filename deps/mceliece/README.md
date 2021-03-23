@@ -4,12 +4,12 @@ The `kem` directory contains the reference implementation of the Classic
 McEliece KEM that was provided by Bernstein et al. as part of the
 [Classic McEliece NIST submission](https://classic.mceliece.org/nist.html).
 
-- Source: Round-2 submission package
-- Revision: `mceliece-20190331`
-- File: [`mceliece-20190331.tar.gz`](https://classic.mceliece.org/nist/mceliece-20190331.tar.gz)
-  - `e298f8bb1380a74d1f5990cb6e921f45` (md5)
-  - `ec08d18f430601c6661a4d0cfe5f5592fb8d6edb` (sha1)
-  - `3fa54e9139bb62338445047cb25ab73b0e1e576288f729d20ce4db8c2236f678` (sha256)
+- Source: Round-3 submission package
+- Revision: `mceliece-20201010`
+- File: [`mceliece-20201010.tar.gz`](https://classic.mceliece.org/nist/mceliece-20201010.tar.gz)
+  - `3efe3af6b08c84743589d8bdb98e9c79` (md5)
+  - `7095f7b5776e836a13d6e6d4b75d2704df1d412a` (sha1)
+  - `1b8aca59430ca7a0569e4e918e1c0c165f67dd0ccde44760f314eaa40f75dafe` (sha256)
 
 ## Automatically applied patches
 
@@ -28,8 +28,8 @@ patches.
   that defines a compatible interface. The implementation of the interface
   uses OpenSSL.
 - The reference implementation uses a random number generator that is based on
-  AES256-CTR. Instead, we patch the implementation to use the AES implementation
-  and the random number generator provided by OpenSSL via
+  AES256-CTR. Instead, we patch the implementation to use the random number
+  generator provided by OpenSSL via
   [`mceliece_externals.h`](mceliece_externals.h).
 - Files that are not required for providing bindings for the reference
   implementation are removed (e.g., `KATNUM`).

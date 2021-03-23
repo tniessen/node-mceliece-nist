@@ -42,11 +42,12 @@ for (const algorithm of McEliece.supportedAlgorithms) {
     st.equal(kem.publicKeySize, m * t * Math.ceil(k / 8),
              'publicKeySize should be m * t * ceil(k / 8) bytes');
     st.equal(kem.privateKeySize,
-             Math.ceil(n / 8) +                    // s
-             t * Math.ceil(m / 8) +                // g_0, ..., g_(t-1)
-             Math.ceil((2 * m - 1) * 2**(m - 4)),  // alpha_1, ..., alpha_n
-             'privateKeySize should be ceil(n / 8) + t * ceil(m / 8) + ' +
-             'ceil((2m - 1) * 2**(m - 4)) bytes');
+             32 +                                   // delta
+             8 +                                    // c
+             t * Math.ceil(m / 8) +                 // g
+             Math.ceil((2 * m - 1) * 2**(m - 4)) +  // alpha_1, ..., alpha_n
+             Math.ceil(n / 8),                      // s
+             'privateKeySize should consist of delta, c, g, alpha, s');
 
     st.end();
   });

@@ -1,11 +1,22 @@
 #!/bin/bash
 set -e
 
+# Remove the old implementation.
+rm -rf kem
+
+archive=mceliece-20201010
+archfile=$archive.tar.gz
+
+echo -n "md5:    "; md5sum    $archfile | cut -c 1-32
+echo -n "sha1:   "; sha1sum   $archfile | cut -c 1-40
+echo -n "sha256: "; sha256sum $archfile | cut -c 1-64
+echo
+
 # Extract the reference implementation.
-archive=mceliece-20190331
-tar -xf $archive.tar.gz $archive/Reference_Implementation/kem/ --strip-components=2
+tar -xf $archfile $archive/Reference_Implementation/kem/ --strip-components=2
 
 prepare_algorithm() {
+  echo "Preparing $id"
   add_header $1
   add_gyp $1
   patch_files $1
@@ -14,20 +25,21 @@ prepare_algorithm() {
 add_header() {
   id=$1
   echo "#include \"kem/$id/crypto_kem_$id.h\"" >> mceliece.h
+  echo "- Added $id to mceliece.h"
 }
 
 add_gyp() {
   id=$1
 
-  variables=("apply_benes=pqcrypto_kem_${id}_impl_priv_apply_benes" "bitrev=pqcrypto_kem_${id}_impl_priv_bitrev" "bm=pqcrypto_kem_${id}_impl_priv_bm" "controlbits=pqcrypto_kem_${id}_impl_priv_controlbits" "decrypt=pqcrypto_kem_${id}_impl_priv_decrypt" "encrypt=pqcrypto_kem_${id}_impl_priv_encrypt" "eval=pqcrypto_kem_${id}_impl_priv_eval" "gf_add=pqcrypto_kem_${id}_impl_priv_gf_add" "gf_frac=pqcrypto_kem_${id}_impl_priv_gf_frac" "gf_inv=pqcrypto_kem_${id}_impl_priv_gf_inv" "gf_iszero=pqcrypto_kem_${id}_impl_priv_gf_iszero" "gf_mul=pqcrypto_kem_${id}_impl_priv_gf_mul" "GF_mul=pqcrypto_kem_${id}_impl_priv_GF_mul" "load2=pqcrypto_kem_${id}_impl_priv_load2" "load8=pqcrypto_kem_${id}_impl_priv_load8" "perm_conversion=pqcrypto_kem_${id}_impl_priv_perm_conversion" "pk_gen=pqcrypto_kem_${id}_impl_priv_pk_gen" "root=pqcrypto_kem_${id}_impl_priv_root" "sk_part_gen=pqcrypto_kem_${id}_impl_priv_sk_part_gen" "sort_63b=pqcrypto_kem_${id}_impl_priv_sort_63b" "store2=pqcrypto_kem_${id}_impl_priv_store2" "store8=pqcrypto_kem_${id}_impl_priv_store8" "support_gen=pqcrypto_kem_${id}_impl_priv_support_gen" "synd=pqcrypto_kem_${id}_impl_priv_synd" "syndrome=pqcrypto_kem_${id}_impl_priv_syndrome" "transpose_64x64=pqcrypto_kem_${id}_impl_priv_transpose_64x64" "load4=pqcrypto_kem_${id}_impl_priv_load4" "handleErrors=pqcrypto_kem_${id}_impl_priv_handleErrors" "perm_check=pqcrypto_kem_${id}_impl_priv_perm_check" "genpoly_gen=pqcrypto_kem_${id}_impl_priv_genpoly_gen")
-  externals=("randombytes" "aes256ctr")
+  variables=("CRYPTO_NAMESPACE(x)=pqcrypto_kem_${id}_##x"  \
+             "_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_${id}_##x")
 
   (
     echo "    {"
     echo "      'target_name': 'only_$id',"
     echo "      'type': 'static_library',"
     echo "      'sources': ["
-    find kem/$id -maxdepth 1 -type f -name '*.c' | grep -v 'aes256ctr' | sort | while read source; do
+    find kem/$id -maxdepth 1 -type f -name '*.c' | sort | while read source; do
       echo "        '$source',"
     done
     echo "      ],"
@@ -35,21 +47,36 @@ add_gyp() {
     for def in ${variables[@]}; do
       echo "        '$def',"
     done
-    for ext in ${externals[@]}; do
-      echo "        '$ext=pqcrypto_mceliece_$ext',"
-    done
     echo "      ],"
     echo "      'cflags': ['-fPIC']"
     echo "    },"
   ) >> binding.gyp
+
+  echo "- Added $id to binding.gyp"
 }
 
 patch_files() {
   id=$1
 
-  rm -rf kem/$id/nist kem/$id/aes256ctr.* $(find kem/$id -type f ! -name '*.c' ! -name '*.h')
+  (
+    # Only required for the NIST submission.
+    echo kem/$id/nist
+    # Non-source files.
+    find kem/$id/ -type f ! -name '*.c' ! -name '*.h'
+    # Irrelevant header files.
+    echo kem/$id/api.h
+  ) | while read f; do
+    rm -rf "$f"
+    echo "- Removed $f"
+  done
+
   find kem/$id -type f \( -name '*.c' -o -name '*.h' \) | while read source; do
-    sed -i 's=<libkeccak\.a\.headers/KeccakSpongeWidth1600\.h>="../../mceliece_externals.h"=g; s="nist/rng.h"="../../mceliece_externals.h"=g; s="aes256ctr.h"="../../mceliece_externals.h"=g' $source
+    oldsha=$(sha1sum "$source")
+    sed -i 's=<libkeccak\.a\.headers/SimpleFIPS202\.h>="../../mceliece_externals.h"=g; s="nist/rng.h"="../../mceliece_externals.h"=g' $source
+    newsha=$(sha1sum "$source")
+    if [ "$oldsha" != "$newsha" ]; then
+      echo "- Patched $source"
+    fi
   done
 }
 

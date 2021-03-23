@@ -1,0 +1,33 @@
+#!/bin/bash
+set -e
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 [FILE.tar.gz]" >&2
+  exit 1
+fi
+
+echo -n '['
+comma=''
+tar tf "$1" | grep '\.rsp$' | while read -r name; do
+  dir=$(dirname "$name")
+  id=$(basename "$dir")
+
+  echo $comma
+  comma=','
+
+  tar -xOf "$1" "$name" | tail -n +6 | cut -c 6- | (
+    echo '  {'
+    echo '    "algorithm": "'"$id"'",'
+    read -r sk_hex
+    read -r ct_hex
+    read -r ss_hex
+    sk=$(echo "$sk_hex" | xxd -r -p | base64 -w 0)
+    ct=$(echo "$ct_hex" | xxd -r -p | base64 -w 0)
+    ss=$(echo "$ss_hex" | xxd -r -p | base64 -w 0)
+    echo '    "privateKey": "'"$sk"'",'
+    echo '    "key": "'"$ss"'",'
+    echo '    "encryptedKey": "'"$ct"'"'
+    echo -n '  }'
+  )
+done
+echo -e '\n]'
