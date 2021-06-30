@@ -37,7 +37,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{matrix.node-version}}
-      - uses: mymindstorm/setup-emsdk@v7
+      - uses: mymindstorm/setup-emsdk@v10
         with:
           version: 2.0.15
       - run: npm install --ignore-scripts
