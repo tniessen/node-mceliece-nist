@@ -171,12 +171,6 @@ static const mceliece_t* get_kem(const char* name) {
   return NULL;
 }
 
-// TODO: The KEM implementation itself is not thread-safe, but it seems that
-// the only unsafe part is the random number generator. We are currently
-// linking each KEM against its own RNG, and we should probably just replace
-// all of those with a thread-safe implementation. (We could simply use OpenSSL
-// for that).
-
 template <typename T>
 static inline T* Malloc(size_t size) {
   return reinterpret_cast<T*>(malloc(size));
