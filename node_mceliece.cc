@@ -324,6 +324,12 @@ class McEliece : public Napi::ObjectWrap<McEliece> {
       return env.Undefined();
     }
 
+    if (!info[0].IsTypedArray()) {
+      Napi::TypeError::New(env, "First argument must be a TypedArray")
+          .ThrowAsJavaScriptException();
+      return env.Undefined();
+    }
+
     Napi::Buffer<unsigned char> public_key = info[0].As<Napi::Buffer<unsigned char>>();
     if (public_key.Length() != impl->public_key_size) {
       Napi::TypeError::New(env, "Invalid public key size")
@@ -351,6 +357,18 @@ class McEliece : public Napi::ObjectWrap<McEliece> {
 
     if (info.Length() != 2 && info.Length() != 3) {
       Napi::TypeError::New(env, "Wrong number of arguments")
+          .ThrowAsJavaScriptException();
+      return env.Undefined();
+    }
+
+    if (!info[0].IsTypedArray()) {
+      Napi::TypeError::New(env, "First argument must be a TypedArray")
+          .ThrowAsJavaScriptException();
+      return env.Undefined();
+    }
+
+    if (!info[1].IsTypedArray()) {
+      Napi::TypeError::New(env, "Second argument must be a TypedArray")
           .ThrowAsJavaScriptException();
       return env.Undefined();
     }

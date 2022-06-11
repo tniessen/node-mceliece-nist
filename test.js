@@ -140,3 +140,45 @@ test('KAT test vectors', (t) => {
             `KAT vector for ${algorithm} should produce ${key}`);
   }
 });
+
+test('Argument validation', (t) => {
+  t.throws(() => new McEliece(), /number of arguments/,
+           'Constructor throws with no arguments');
+  for (const v of [undefined, {}, true, 123, 123n]) {
+    t.throws(() => new McEliece(v), /First argument must be a string/,
+             `Constructor throws if first argument of type ${typeof v}`);
+  }
+  t.throws(() => new McEliece('foo', 'bar'), /number of arguments/,
+           'Constructor throws if more than one argument');
+
+  const kem = new McEliece(McEliece.supportedAlgorithms[0]);
+
+  t.throws(() => kem.generateKey(), /number of arguments/,
+           'generateKey throws with no arguments');
+  for (const v of [undefined, {}, true, 123, 123n, 'foo']) {
+    t.throws(() => kem.generateKey(v), /First argument must be a TypedArray/,
+             `generateKey throws if first argument of type ${typeof v}`);
+  }
+  t.throws(() => kem.generateKey(), /number of arguments/,
+           'generateKey throws if more than one argument');
+
+  const fakePrivateKey = new Uint8Array(kem.privateKeySize);
+  const fakeEncryptedKey = new Uint8Array(kem.encryptedKeySize);
+  t.throws(() => kem.decryptKey(), /number of arguments/,
+           'decryptKey throws with no arguments');
+  t.throws(() => kem.decryptKey(fakePrivateKey), /number of arguments/,
+           'decryptKey throws with only one argument');
+  t.throws(() => kem.decryptKey(fakePrivateKey, fakeEncryptedKey, () => {}, 1),
+           /number of arguments/,
+           'decryptKey throws if more than three arguments');
+  for (const v of [undefined, {}, true, 123, 123n, 'foo']) {
+    t.throws(() => kem.decryptKey(v, fakeEncryptedKey),
+             /First argument must be a TypedArray/,
+             `decryptKey throws if first argument of type ${typeof v}`);
+    t.throws(() => kem.decryptKey(fakePrivateKey, v),
+             /Second argument must be a TypedArray/,
+             `decryptKey throws if second argument of type ${typeof v}`);
+  }
+
+  t.end();
+});

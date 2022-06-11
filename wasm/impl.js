@@ -71,6 +71,14 @@ module.exports.createClass = (mod) => {
 
   class McEliece {
     constructor(name) {
+      if (arguments.length !== 1) {
+        throw new TypeError('Wrong number of arguments');
+      }
+
+      if (typeof name !== 'string') {
+        throw new TypeError('First argument must be a string');
+      }
+
       if ((this[kImpl] = kems[name]) === undefined)
         throw new Error('No such implementation');
     }
@@ -125,6 +133,14 @@ module.exports.createClass = (mod) => {
     }
 
     generateKey(publicKey) {
+      if (arguments.length !== 1) {
+        throw new TypeError('Wrong number of arguments');
+      }
+
+      if (!ArrayBuffer.isView(publicKey)) {
+        throw new TypeError('First argument must be a TypedArray');
+      }
+
       const { publicKeySize, keySize, ciphertextSize, encrypt } = this[kImpl];
 
       if (publicKey.length !== publicKeySize)
@@ -153,6 +169,18 @@ module.exports.createClass = (mod) => {
     }
 
     decryptKey(privateKey, encryptedKey, callback) {
+      if (arguments.length < 2 || arguments.length > 3) {
+        throw new TypeError('Wrong number of arguments');
+      }
+
+      if (!ArrayBuffer.isView(privateKey)) {
+        throw new TypeError('First argument must be a TypedArray');
+      }
+
+      if (!ArrayBuffer.isView(encryptedKey)) {
+        throw new TypeError('Second argument must be a TypedArray');
+      }
+
       if (typeof callback === 'function') {
         return doAsync(this[kImpl].name, 'decryptKey', [privateKey, encryptedKey], (err, result) => {
           if (err)
