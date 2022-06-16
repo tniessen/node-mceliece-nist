@@ -60,7 +60,7 @@ typedef struct {
   decrypt_fn_t decrypt;
 } mceliece_t;
 
-static const mceliece_t kems[] = {
+const mceliece_t kems[] = {
   {
     "mceliece348864",
     crypto_kem_mceliece348864_ref_PUBLICKEYBYTES,
@@ -163,7 +163,7 @@ static const mceliece_t kems[] = {
   }
 };
 
-static const mceliece_t* get_kem(const char* name) {
+const mceliece_t* get_kem(const char* name) {
   for (unsigned int i = 0; i < sizeof(kems) / sizeof(mceliece_t); i++) {
     if (strcmp(kems[i].name, name) == 0)
       return &kems[i];
@@ -172,16 +172,16 @@ static const mceliece_t* get_kem(const char* name) {
 }
 
 template <typename T>
-static inline T* Malloc(size_t size) {
+inline T* Malloc(size_t size) {
   return reinterpret_cast<T*>(malloc(size));
 }
 
-static void Free(Napi::Env env, void* p) {
+void Free(Napi::Env env, void* p) {
   free(p);
 }
 
 template <typename T>
-static inline T* Duplicate(const void* mem, size_t size) {
+inline T* Duplicate(const void* mem, size_t size) {
   T* copy = Malloc<T>(size);
   if (copy != nullptr)
     memcpy(copy, mem, size);
@@ -425,7 +425,7 @@ class McEliece : public Napi::ObjectWrap<McEliece> {
   const mceliece_t* impl;
 };
 
-static Napi::Object Init(Napi::Env env, Napi::Object exports) {
+Napi::Object Init(Napi::Env env, Napi::Object exports) {
   Napi::HandleScope scope(env);
 
   Napi::Function func = McEliece::DefineClass(env, "McEliece", {
