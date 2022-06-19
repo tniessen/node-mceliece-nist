@@ -91,7 +91,7 @@ for (const algorithm of McEliece.supportedAlgorithms) {
 
     kem.keypair((err, result) => {
       t.ok(wasAsync, 'keypair with callback should be async');
-      t.error(err, 'decryptKey should not fail');
+      t.error(err, 'keypair should not fail');
 
       const { publicKey, privateKey } = result;
 
