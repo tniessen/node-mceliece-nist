@@ -72,8 +72,8 @@ generated.
 
 #### `instance.generateKey(publicKey)`
 
-Generates a new symmetric key and encrypts it using the given publicKey. Returns
-`{ key, encryptedKey }`, both objects will be `Buffer`s.
+Generates a new symmetric key and encrypts it using the given `publicKey`.
+Returns `{ key, encryptedKey }`, both objects will be `Buffer`s.
 
 #### `instance.decryptKey(privateKey, encryptedKey[, callback])`
 
