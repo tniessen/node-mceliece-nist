@@ -159,7 +159,7 @@ test('Argument validation', (t) => {
     t.throws(() => kem.generateKey(v), /First argument must be a TypedArray/,
              `generateKey throws if first argument of type ${typeof v}`);
   }
-  t.throws(() => kem.generateKey(), /number of arguments/,
+  t.throws(() => kem.generateKey('foo', 'bar'), /number of arguments/,
            'generateKey throws if more than one argument');
 
   const fakePrivateKey = new Uint8Array(kem.privateKeySize);
