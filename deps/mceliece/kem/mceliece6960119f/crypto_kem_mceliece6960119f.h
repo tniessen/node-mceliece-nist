@@ -3,7 +3,7 @@
 
 #define crypto_kem_mceliece6960119f_ref_PUBLICKEYBYTES 1047319
 #define crypto_kem_mceliece6960119f_ref_SECRETKEYBYTES 13948
-#define crypto_kem_mceliece6960119f_ref_CIPHERTEXTBYTES 226
+#define crypto_kem_mceliece6960119f_ref_CIPHERTEXTBYTES 194
 #define crypto_kem_mceliece6960119f_ref_BYTES 32
  
 #ifdef __cplusplus

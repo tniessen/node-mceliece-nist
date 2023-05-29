@@ -3,10 +3,14 @@
 /* See also https://cr.yp.to/papers/controlbits-20200923.pdf */
 
 #include <string.h>
+#include "crypto_declassify.h"
 #include "controlbits.h"
 #include "int32_sort.h"
 typedef int16_t int16;
 typedef int32_t int32;
+#include "crypto_int32.h"
+#define int32_min crypto_int32_min
+#include "crypto_int16.h"
 
 /* parameters: 1 <= w <= 14; n = 2^w */
 /* input: permutation pi of {0,1,...,n-1} */
@@ -34,8 +38,7 @@ static void cbrecursion(unsigned char *out,long long pos,long long step,const in
   for (x = 0;x < n;++x) {
     int32 Ax = A[x];
     int32 px = Ax&0xffff;
-    int32 cx = px;
-    if (x < cx) cx = x;
+    int32 cx = int32_min(px,x);
     B[x] = (px<<16)|cx;
   }
   /* B = (p<<16)+c */
@@ -61,8 +64,7 @@ static void cbrecursion(unsigned char *out,long long pos,long long step,const in
       for (x = 0;x < n;++x) {
         int32 ppcpx = A[x]&0xfffff;
         int32 ppcx = (A[x]&0xffc00)|(B[x]&0x3ff);
-        if (ppcpx < ppcx) ppcx = ppcpx;
-        B[x] = ppcx;
+        B[x] = int32_min(ppcx,ppcpx);
       }
     }
     for (x = 0;x < n;++x) B[x] &= 0x3ff;
@@ -90,7 +92,7 @@ static void cbrecursion(unsigned char *out,long long pos,long long step,const in
       /* A = id<<16+cp */
       for (x = 0;x < n;++x) {
         int32 cpx = (B[x]&~0xffff)|(A[x]&0xffff);
-        if (cpx < B[x]) B[x] = cpx;
+        B[x] = int32_min(B[x],cpx);
       }
     }
     for (x = 0;x < n;++x) B[x] &= 0xffff;
@@ -209,6 +211,8 @@ void controlbitsfrompermutation(unsigned char *out,const int16 *pi,long long w,l
     for (i = 0; i < n; i++)
       diff |= pi[i] ^ pi_test[i];
 
+    diff = crypto_int16_nonzero_mask(diff);
+    crypto_declassify(&diff,sizeof diff);
     if (diff == 0)
       break;
   }

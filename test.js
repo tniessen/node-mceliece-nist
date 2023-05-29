@@ -37,8 +37,8 @@ for (const algorithm of McEliece.supportedAlgorithms) {
 
     const kem = new McEliece(algorithm);
     st.equal(kem.keySize, 32, 'keySize should be 32 bytes');
-    st.equal(kem.encryptedKeySize, Math.ceil(m * t / 8) + 32,
-             'encryptedKeySize should be ceil(m * t / 8) + 32 bytes');
+    st.equal(kem.encryptedKeySize, Math.ceil(m * t / 8),
+             'encryptedKeySize should be ceil(m * t / 8) bytes');
     st.equal(kem.publicKeySize, m * t * Math.ceil(k / 8),
              'publicKeySize should be m * t * ceil(k / 8) bytes');
     st.equal(kem.privateKeySize,

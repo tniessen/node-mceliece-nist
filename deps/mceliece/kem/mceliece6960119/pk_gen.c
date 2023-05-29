@@ -14,6 +14,22 @@
 #include "benes.h"
 #include "root.h"
 #include "util.h"
+#include "crypto_declassify.h"
+#include "crypto_uint64.h"
+
+static crypto_uint64 uint64_is_equal_declassify(uint64_t t,uint64_t u)
+{
+  crypto_uint64 mask = crypto_uint64_equal_mask(t,u);
+  crypto_declassify(&mask,sizeof mask);
+  return mask;
+}
+
+static crypto_uint64 uint64_is_zero_declassify(uint64_t t)
+{
+  crypto_uint64 mask = crypto_uint64_zero_mask(t);
+  crypto_declassify(&mask,sizeof mask);
+  return mask;
+}
 
 /* input: secret key sk */
 /* output: public key pk */
@@ -50,7 +66,7 @@ int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm, int16_t * pi
 	uint64_sort(buf, 1 << GFBITS);
 
 	for (i = 1; i < (1 << GFBITS); i++)
-		if ((buf[i-1] >> 31) == (buf[i] >> 31))
+		if (uint64_is_equal_declassify(buf[i-1] >> 31,buf[i] >> 31))
 			return -1;
 
 	for (i = 0; i < (1 << GFBITS); i++) pi[i] = buf[i] & GFMASK;
@@ -110,7 +126,7 @@ int pk_gen(unsigned char * pk, unsigned char * sk, uint32_t * perm, int16_t * pi
 				mat[ row ][ c ] ^= mat[ k ][ c ] & mask;
 		}
 
-		if ( ((mat[ row ][ i ] >> j) & 1) == 0 ) // return if not systematic
+                if ( uint64_is_zero_declassify((mat[ row ][ i ] >> j) & 1) ) // return if not systematic
 		{
 			return -1;
 		}

@@ -34,6 +34,9 @@
         'kem/mceliece348864/transpose.c',
         'kem/mceliece348864/util.c',
       ],
+      'include_dirs': [
+        'kem/mceliece348864/subroutines',
+      ],
       'defines': [
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece348864_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece348864_##x',
@@ -57,6 +60,9 @@
         'kem/mceliece348864f/synd.c',
         'kem/mceliece348864f/transpose.c',
         'kem/mceliece348864f/util.c',
+      ],
+      'include_dirs': [
+        'kem/mceliece348864f/subroutines',
       ],
       'defines': [
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece348864f_##x',
@@ -82,6 +88,9 @@
         'kem/mceliece460896/transpose.c',
         'kem/mceliece460896/util.c',
       ],
+      'include_dirs': [
+        'kem/mceliece460896/subroutines',
+      ],
       'defines': [
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece460896_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece460896_##x',
@@ -105,6 +114,9 @@
         'kem/mceliece460896f/synd.c',
         'kem/mceliece460896f/transpose.c',
         'kem/mceliece460896f/util.c',
+      ],
+      'include_dirs': [
+        'kem/mceliece460896f/subroutines',
       ],
       'defines': [
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece460896f_##x',
@@ -130,6 +142,9 @@
         'kem/mceliece6688128/transpose.c',
         'kem/mceliece6688128/util.c',
       ],
+      'include_dirs': [
+        'kem/mceliece6688128/subroutines',
+      ],
       'defines': [
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece6688128_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece6688128_##x',
@@ -153,6 +168,9 @@
         'kem/mceliece6688128f/synd.c',
         'kem/mceliece6688128f/transpose.c',
         'kem/mceliece6688128f/util.c',
+      ],
+      'include_dirs': [
+        'kem/mceliece6688128f/subroutines',
       ],
       'defines': [
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece6688128f_##x',
@@ -178,6 +196,9 @@
         'kem/mceliece6960119/transpose.c',
         'kem/mceliece6960119/util.c',
       ],
+      'include_dirs': [
+        'kem/mceliece6960119/subroutines',
+      ],
       'defines': [
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece6960119_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece6960119_##x',
@@ -201,6 +222,9 @@
         'kem/mceliece6960119f/synd.c',
         'kem/mceliece6960119f/transpose.c',
         'kem/mceliece6960119f/util.c',
+      ],
+      'include_dirs': [
+        'kem/mceliece6960119f/subroutines',
       ],
       'defines': [
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece6960119f_##x',
@@ -226,6 +250,9 @@
         'kem/mceliece8192128/transpose.c',
         'kem/mceliece8192128/util.c',
       ],
+      'include_dirs': [
+        'kem/mceliece8192128/subroutines',
+      ],
       'defines': [
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece8192128_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece8192128_##x',
@@ -249,6 +276,9 @@
         'kem/mceliece8192128f/synd.c',
         'kem/mceliece8192128f/transpose.c',
         'kem/mceliece8192128f/util.c',
+      ],
+      'include_dirs': [
+        'kem/mceliece8192128f/subroutines',
       ],
       'defines': [
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece8192128f_##x',

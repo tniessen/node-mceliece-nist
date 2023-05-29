@@ -4,12 +4,12 @@ The `kem` directory contains the reference implementation of the Classic
 McEliece KEM that was provided by Bernstein et al. as part of the
 [Classic McEliece NIST submission](https://classic.mceliece.org/nist.html).
 
-- Source: Round-3 submission package
-- Revision: `mceliece-20201010`
-- File: [`mceliece-20201010.tar.gz`](https://classic.mceliece.org/nist/mceliece-20201010.tar.gz)
-  - `3efe3af6b08c84743589d8bdb98e9c79` (md5)
-  - `7095f7b5776e836a13d6e6d4b75d2704df1d412a` (sha1)
-  - `1b8aca59430ca7a0569e4e918e1c0c165f67dd0ccde44760f314eaa40f75dafe` (sha256)
+- Source: Round-4 submission package
+- Revision: `mceliece-20221023`
+- File: [`mceliece-20221023.tar.gz`](https://classic.mceliece.org/nist/mceliece-20221023.tar.gz)
+  - `37bc7bddf9b061cb52992afe27f40f82` (md5)
+  - `e939e24b0f840a1a78c474575b846c50986d4651` (sha1)
+  - `sha256: 0428f1c9aeb3472ab580f21693d7fa26ccc92f29beee40a78cc88dab79dfb7a3` (sha256)
 
 ## Automatically applied patches
 

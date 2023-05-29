@@ -14,7 +14,7 @@ compile_algorithm() {
     target=$obj_dir/${source%.c}.bc
     echo "  $source -> $target"
     mkdir -p `dirname $target`
-    emcc -std=c11 -Oz -fvisibility=default $variables -c $source -o $target
+    emcc -std=c11 -Oz -Ikem/$id/subroutines -fvisibility=default $variables -c $source -o $target
   done
 }
 
