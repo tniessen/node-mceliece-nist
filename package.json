@@ -1,6 +1,6 @@
 {
   "name": "mceliece-nist",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Node.js bindings for the reference implementation of the McEliece KEM.",
   "main": "index.js",
   "dependencies": {
