@@ -41,7 +41,7 @@
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece348864_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece348864_##x',
       ],
-      'cflags': ['-fPIC']
+      'cflags': ['-fPIC', '-Wno-unused-function']
     },
     {
       'target_name': 'only_mceliece348864f',
@@ -68,7 +68,7 @@
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece348864f_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece348864f_##x',
       ],
-      'cflags': ['-fPIC']
+      'cflags': ['-fPIC', '-Wno-unused-function']
     },
     {
       'target_name': 'only_mceliece460896',
@@ -95,7 +95,7 @@
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece460896_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece460896_##x',
       ],
-      'cflags': ['-fPIC']
+      'cflags': ['-fPIC', '-Wno-unused-function']
     },
     {
       'target_name': 'only_mceliece460896f',
@@ -122,7 +122,7 @@
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece460896f_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece460896f_##x',
       ],
-      'cflags': ['-fPIC']
+      'cflags': ['-fPIC', '-Wno-unused-function']
     },
     {
       'target_name': 'only_mceliece6688128',
@@ -149,7 +149,7 @@
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece6688128_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece6688128_##x',
       ],
-      'cflags': ['-fPIC']
+      'cflags': ['-fPIC', '-Wno-unused-function']
     },
     {
       'target_name': 'only_mceliece6688128f',
@@ -176,7 +176,7 @@
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece6688128f_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece6688128f_##x',
       ],
-      'cflags': ['-fPIC']
+      'cflags': ['-fPIC', '-Wno-unused-function']
     },
     {
       'target_name': 'only_mceliece6960119',
@@ -203,7 +203,7 @@
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece6960119_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece6960119_##x',
       ],
-      'cflags': ['-fPIC']
+      'cflags': ['-fPIC', '-Wno-unused-function']
     },
     {
       'target_name': 'only_mceliece6960119f',
@@ -230,7 +230,7 @@
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece6960119f_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece6960119f_##x',
       ],
-      'cflags': ['-fPIC']
+      'cflags': ['-fPIC', '-Wno-unused-function']
     },
     {
       'target_name': 'only_mceliece8192128',
@@ -257,7 +257,7 @@
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece8192128_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece8192128_##x',
       ],
-      'cflags': ['-fPIC']
+      'cflags': ['-fPIC', '-Wno-unused-function']
     },
     {
       'target_name': 'only_mceliece8192128f',
@@ -284,7 +284,7 @@
         'CRYPTO_NAMESPACE(x)=pqcrypto_kem_mceliece8192128f_##x',
         '_CRYPTO_NAMESPACE(x)=_pqcrypto_kem_mceliece8192128f_##x',
       ],
-      'cflags': ['-fPIC']
+      'cflags': ['-fPIC', '-Wno-unused-function']
     },
   ]
 }

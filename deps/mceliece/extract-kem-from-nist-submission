@@ -52,7 +52,7 @@ add_gyp() {
       echo "        '$def',"
     done
     echo "      ],"
-    echo "      'cflags': ['-fPIC']"
+    echo "      'cflags': ['-fPIC', '-Wno-unused-function']"
     echo "    },"
   ) >> binding.gyp
 
