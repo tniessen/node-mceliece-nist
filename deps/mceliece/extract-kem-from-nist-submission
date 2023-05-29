@@ -59,14 +59,14 @@ patch_files() {
   id=$1
 
   (
-    # Only required for the NIST submission.
-    echo kem/$id/nist
     # Non-source files.
     find kem/$id/ -type f ! -name '*.c' ! -name '*.h'
+    # Only required for the NIST submission.
+    echo kem/$id/nist
     # Irrelevant header files.
     echo kem/$id/api.h
   ) | while read f; do
-    rm -rf "$f"
+    rm -r "$f"
     echo "- Removed $f"
   done
 
